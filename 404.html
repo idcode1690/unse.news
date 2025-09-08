@@ -1,75 +1,35 @@
 <!doctype html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="content-language" content="ko" />
-    <meta name="language" content="ko" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="robots" content="index,follow" />
-    <meta name="googlebot" content="index,follow" />
-    <meta name="format-detection" content="telephone=no" />
+<head>
+  <meta charset="utf-8" />
+  <title>Redirecting…</title>
+  <meta name="robots" content="noindex" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script>
+    (function () {
+      // 현재 경로/쿼리/해시를 받아 HashRouter 형식으로 변환
+      var path = window.location.pathname || '/';
+      var search = window.location.search || '';
+      var hash = window.location.hash || '';
 
-    <!-- 기본 타이틀/설명 -->
-    <title>운세뉴스</title>
-    <meta
-      name="description"
-      content="사주팔자, 오늘의 운세, 궁합, 로또 추천을 한 곳에서. 생년월일/시간 입력만으로 간단하게 확인하세요."
-    />
+      // unse.news에서 최상위 루트 기준으로 동작
+      // /result => /#/result
+      // /compat?x=1 => /#/compat?x=1
+      var target = '/#' + path + search + hash;
 
-    <!-- Canonical / 지역 -->
-    <!-- 도메인이 있다면 href를 실제 도메인으로 교체 (예: https://unse.news/) -->
-    <link rel="canonical" href="https://unse.news/" />
-    <meta name="geo.region" content="KR" />
-    <meta property="og:locale" content="ko_KR" />
-    <link rel="alternate" href="https://unse.news/" hreflang="ko-kr" />
-    <link rel="alternate" href="https://unse.news/" hreflang="x-default" />
-
-    <!-- Open Graph -->
-    <meta property="og:title" content="운세뉴스" />
-    <meta property="og:description" content="사주팔자, 오늘의 운세, 궁합, 로또 추천을 한 곳에서." />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://unse.news/" />
-    <meta property="og:image" content="/og-image.png" />
-    <meta property="og:site_name" content="운세뉴스" />
-
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="운세뉴스" />
-    <meta name="twitter:description" content="사주팔자, 오늘의 운세, 궁합, 로또 추천을 한 곳에서." />
-    <meta name="twitter:image" content="/og-image.png" />
-
-    <!-- PWA / 아이콘 -->
-    <!-- ✅ 상대경로로 변경: dev/배포 모두 안전 -->
-    <link rel="manifest" href="site.webmanifest" />
-    <meta name="theme-color" content="#ffffff" />
-    <!-- ✅ SVG 파비콘만 유지 (ico/png 파일이 없어 404를 만들고 있었음) -->
-    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-
-    <!-- 구조화 데이터 (선택) -->
-    <script type="application/ld+json">
-      {
-        "@context":"https://schema.org",
-        "@type":"Organization",
-        "name":"운세뉴스",
-        "url":"https://unse.news/",
-        "logo":"https://unse.news/og-image.png"
-      }
-    </script>
-    <script type="application/ld+json">
-      {
-        "@context":"https://schema.org",
-        "@type":"WebSite",
-        "name":"운세뉴스",
-        "url":"https://unse.news/",
-        "inLanguage":"ko-KR"
-      }
-    </script>
-
-    <!-- Vite entry -->
-    <script type="module" crossorigin src="/unse.news/assets/index-B9se96fT.js"></script>
-    <link rel="stylesheet" crossorigin href="/unse.news/assets/index-finXStWG.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+      // 히스토리를 어지럽히지 않도록 replace 사용
+      window.location.replace(target);
+    })();
+  </script>
+  <noscript>
+    자바스크립트가 꺼져 있어 페이지를 표시할 수 없습니다.
+    <meta http-equiv="refresh" content="0;url=/#/" />
+  </noscript>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Noto Sans KR,sans-serif;margin:0;padding:2rem;color:#111}
+  </style>
+</head>
+<body>
+  <p>페이지로 이동 중입니다…</p>
+</body>
 </html>
