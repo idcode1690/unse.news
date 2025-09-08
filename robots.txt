@@ -1,17 +1,13 @@
-# robots.txt for 운세뉴스
+# robots.txt for https://unse.news/
+# 검색 엔진이 SPA의 각 주요 페이지를 정상적으로 수집할 수 있도록 설정합니다.
 
 User-agent: *
 Allow: /
 
-# 내부·비공개 경로 크롤링 금지 (있는 경우에만 적용)
-Disallow: /admin/
-Disallow: /api/
-Disallow: /internal/
-Disallow: /private/
-Disallow: /node_modules/
+# 불필요한 민감 파일 차단 (빌드 산출물/설정 파일 등)
+Disallow: /vite.svg
+Disallow: /favicon.svg
+Disallow: /site.webmanifest
 
-# 소스맵 등 불필요한 파일 차단
-Disallow: /*.map$
-
-# 사이트맵 (도메인에 맞게 수정)
-Sitemap: https://idcode1690.github.io/unse/sitemap.xml
+# 사이트맵 위치
+Sitemap: https://unse.news/sitemap.xml
