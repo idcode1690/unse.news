@@ -60,12 +60,13 @@
       }
     </script>
 
-    <!-- ✅ CSS: 프리로드 + 표준 로드 (빌드시 /assets/index-*.css 로 자동 치환) -->
+    <!-- ✅ CSS: 비차단 로드 (preload + media=print 전환) -->
+    <!-- Vite가 빌드시 /src/index.css → /assets/index-*.css 로 치환 -->
+    <link rel="stylesheet" href="data:text/css;base64,Ym9keSB7CiAgbWFyZ2luOiAwOwogIGZvbnQtZmFtaWx5OiAtYXBwbGUtc3lzdGVtLCBCbGlua01hY1N5c3RlbUZvbnQsICdTZWdvZSBVSScsICdSb2JvdG8nLCAnT3h5Z2VuJywKICAgICdVYnVudHUnLCAnQ2FudGFyZWxsJywgJ0ZpcmEgU2FucycsICdEcm9pZCBTYW5zJywgJ0hlbHZldGljYSBOZXVlJywKICAgIHNhbnMtc2VyaWY7CiAgLXdlYmtpdC1mb250LXNtb290aGluZzogYW50aWFsaWFzZWQ7CiAgLW1vei1vc3gtZm9udC1zbW9vdGhpbmc6IGdyYXlzY2FsZTsKfQoKY29kZSB7CiAgZm9udC1mYW1pbHk6IHNvdXJjZS1jb2RlLXBybywgTWVubG8sIE1vbmFjbywgQ29uc29sYXMsICdDb3VyaWVyIE5ldycsCiAgICBtb25vc3BhY2U7Cn0K" media="print" onload="this.media='all'" />
+    <noscript></noscript>
 
-    <!-- ✅ 엔트리 모듈 선요청 (빌드시 /assets/index-*.js 로 치환) -->
+    <!-- ✅ 엔트리 모듈 선요청 및 실행 (빌드시 /assets/index-*.js 로 치환) -->
     <link rel="modulepreload" href="data:text/jsx;base64,Ly8gc3JjL21haW4uanN4DQppbXBvcnQgUmVhY3QgZnJvbSAicmVhY3QiOw0KaW1wb3J0IHsgY3JlYXRlUm9vdCB9IGZyb20gInJlYWN0LWRvbS9jbGllbnQiOw0KaW1wb3J0IEFwcCBmcm9tICIuL0FwcC5qc3giOyAgIC8vIEFwcCDtmZXsnqXsnpAg66ee7LawIOycoOyngA0KDQpjcmVhdGVSb290KGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJyb290IikpLnJlbmRlcigNCiAgPFJlYWN0LlN0cmljdE1vZGU+DQogICAgPEFwcCAvPg0KICA8L1JlYWN0LlN0cmljdE1vZGU+DQopOw0K" />
-
-    <!-- Vite entry (한 번만) -->
 
     <!-- (선택) 서비스 워커: 재방문 성능 개선 -->
     <script>
@@ -75,7 +76,7 @@
         });
       }
     </script>
-    <script type="module" crossorigin src="/assets/index-DF805Sfw.js"></script>
+    <script type="module" crossorigin src="/assets/index-2Ic18lwy.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-C-bqgmZu.css">
   </head>
   <body>
