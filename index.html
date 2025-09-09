@@ -60,9 +60,18 @@
       }
     </script>
 
-    <!-- ✅ CSS 프리로드 + 표준 로드 (Vite가 /src/index.css를 해시된 /assets/index-*.css 로 치환) -->
+    <!-- ✅ CSS 프리로드 + 표준 로드 (Vite가 빌드시 /assets/index-*.css 로 치환) -->
 
     <!-- Vite entry (한 번만) -->
+
+    <!-- ✅ 서비스 워커 등록: 재방문 속도 가속(캐시 우선) -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(console.error);
+        });
+      }
+    </script>
     <script type="module" crossorigin src="/assets/index-Cr8KZyeL.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-C-bqgmZu.css">
   </head>
