@@ -9,15 +9,12 @@
     <meta name="googlebot" content="index,follow" />
     <meta name="format-detection" content="telephone=no" />
 
-    <!-- 기본 타이틀/설명 -->
     <title>운세뉴스</title>
     <meta
       name="description"
       content="사주팔자, 오늘의 운세, 궁합, 로또 추천을 한 곳에서. 생년월일/시간 입력만으로 간단하게 확인하세요."
     />
 
-    <!-- Canonical / 지역 -->
-    <!-- 도메인이 있다면 href를 실제 도메인으로 교체 (예: https://unse.news/) -->
     <link rel="canonical" href="https://unse.news/" />
     <meta name="geo.region" content="KR" />
     <meta property="og:locale" content="ko_KR" />
@@ -39,13 +36,11 @@
     <meta name="twitter:image" content="/og-image.png" />
 
     <!-- PWA / 아이콘 -->
-    <!-- ✅ 상대경로로 변경: dev/배포 모두 안전 -->
     <link rel="manifest" href="site.webmanifest" />
     <meta name="theme-color" content="#ffffff" />
-    <!-- ✅ SVG 파비콘만 유지 (ico/png 파일이 없어 404를 만들고 있었음) -->
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
 
-    <!-- 구조화 데이터 (선택) -->
+    <!-- 구조화 데이터 -->
     <script type="application/ld+json">
       {
         "@context":"https://schema.org",
@@ -65,9 +60,11 @@
       }
     </script>
 
-    <!-- Vite entry -->
-    <script type="module" crossorigin src="/assets/index-B9se96fT.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-finXStWG.css">
+    <!-- ✅ CSS 프리로드 + 표준 로드 (Vite가 /src/index.css를 해시된 /assets/index-*.css 로 치환) -->
+
+    <!-- Vite entry (한 번만) -->
+    <script type="module" crossorigin src="/assets/index-Cr8KZyeL.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-C-bqgmZu.css">
   </head>
   <body>
     <div id="root"></div>
