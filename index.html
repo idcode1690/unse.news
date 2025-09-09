@@ -60,11 +60,15 @@
       }
     </script>
 
-    <!-- ✅ CSS 프리로드 + 표준 로드 (Vite가 빌드시 /assets/index-*.css 로 치환) -->
+    <!-- ✅ CSS: 프리로드 + 표준 로드 + 높은 fetchpriority
+         - Vite가 빌드시 /src/index.css -> /assets/index-*.css 로 자동 치환 -->
 
-    <!-- Vite entry (한 번만) -->
+    <!-- ✅ JS 엔트리 모듈을 선선요청: Vite가 빌드시 /src/main.jsx -> /assets/index-*.js 로 치환 -->
+    <link rel="modulepreload" href="data:text/jsx;base64,Ly8gc3JjL21haW4uanN4DQppbXBvcnQgUmVhY3QgZnJvbSAicmVhY3QiOw0KaW1wb3J0IHsgY3JlYXRlUm9vdCB9IGZyb20gInJlYWN0LWRvbS9jbGllbnQiOw0KaW1wb3J0IEFwcCBmcm9tICIuL0FwcC5qc3giOyAgIC8vIEFwcCDtmZXsnqXsnpAg66ee7LawIOycoOyngA0KDQpjcmVhdGVSb290KGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJyb290IikpLnJlbmRlcigNCiAgPFJlYWN0LlN0cmljdE1vZGU+DQogICAgPEFwcCAvPg0KICA8L1JlYWN0LlN0cmljdE1vZGU+DQopOw0K" />
 
-    <!-- ✅ 서비스 워커 등록: 재방문 속도 가속(캐시 우선) -->
+    <!-- Vite entry (한 번만) + 높은 fetchpriority -->
+
+    <!-- (선택) 서비스 워커: 재방문 성능 개선 -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
