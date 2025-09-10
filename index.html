@@ -9,6 +9,27 @@
     <meta name="googlebot" content="index,follow" />
     <meta name="format-detection" content="telephone=no" />
 
+    <!-- ✅ 서비스 워커를 가능한 빨리 등록 + 최초 1회 자동 새로고침 -->
+    <script>
+      (function () {
+        if ('serviceWorker' in navigator) {
+          const KEY = 'sw-first-load-done';
+          const firstDone = sessionStorage.getItem(KEY);
+
+          navigator.serviceWorker.register('/sw.js', { scope: '/' }).then(() => {
+            // 새 SW가 준비되면 메시지 수신
+            navigator.serviceWorker.addEventListener('message', (ev) => {
+              if (ev?.data?.type === 'SW_READY' && !firstDone) {
+                sessionStorage.setItem(KEY, '1');
+                // 첫 설치 후 다시 로드 → 이후부터 /assets/* 가 immutable 헤더로 서빙
+                location.reload();
+              }
+            });
+          }).catch(console.error);
+        }
+      })();
+    </script>
+
     <title>운세뉴스</title>
     <meta
       name="description"
@@ -60,21 +81,12 @@
       }
     </script>
 
-    <!-- CSS (빌드시 Vite가 /assets/index-*.css 로 치환) -->
+    <!-- CSS (빌드시 /assets/index-*.css 로 치환됨) -->
 
-    <!-- ❗ 개발/운영 공통: 진입 스크립트는 한 줄만. modulepreload로 .jsx 미리 불러오지 않음 -->
+    <!-- 진입 스크립트: 한 줄만. modulepreload로 .jsx 미리 불러오지 않음 -->
 
-    <!-- CSP: 외부/데이터 스킴 스크립트 주입 방지 -->
+    <!-- CSP: data: 스크립트 주입 차단 -->
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'; object-src 'none'">
-
-    <!-- 서비스 워커 (있다면) 등록 -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(console.error);
-        });
-      }
-    </script>
     <script type="module" crossorigin src="/assets/index-DS_sG9kT.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-C-bqgmZu.css">
   </head>
