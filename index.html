@@ -9,6 +9,38 @@
     <meta name="googlebot" content="index,follow" />
     <meta name="format-detection" content="telephone=no" />
 
+    <!-- (선택) DNS/연결 힌트 -->
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+    <link rel="preconnect" href="https://www.google-analytics.com" crossorigin>
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+    <link rel="dns-prefetch" href="https://www.google-analytics.com">
+
+    <!-- ✅ Google tag (gtag.js) : SPA 해시 라우팅 대응 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WBW13K5H5E"></script>
+    <script>
+      // GA 기본 세팅
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      gtag('js', new Date());
+
+      // SPA에서 초기 자동 page_view를 끄고 수동으로 보냄
+      gtag('config', 'G-WBW13K5H5E', { send_page_view: false });
+
+      function sendPageView(){
+        var path = location.pathname + location.search + location.hash;
+        gtag('event', 'page_view', {
+          page_title: document.title,
+          page_location: location.href,
+          page_path: path
+        });
+      }
+      // 첫 진입
+      sendPageView();
+      // 해시 라우팅 변화 감지
+      window.addEventListener('hashchange', sendPageView);
+      window.addEventListener('popstate', sendPageView);
+    </script>
+
     <!-- ✅ 서비스 워커를 가능한 빨리 등록 + 최초 1회 자동 새로고침 -->
     <script>
       (function () {
@@ -17,11 +49,9 @@
           const firstDone = sessionStorage.getItem(KEY);
 
           navigator.serviceWorker.register('/sw.js', { scope: '/' }).then(() => {
-            // 새 SW가 준비되면 메시지 수신
             navigator.serviceWorker.addEventListener('message', (ev) => {
               if (ev?.data?.type === 'SW_READY' && !firstDone) {
                 sessionStorage.setItem(KEY, '1');
-                // 첫 설치 후 다시 로드 → 이후부터 /assets/* 가 immutable 헤더로 서빙
                 location.reload();
               }
             });
@@ -85,9 +115,9 @@
 
     <!-- 진입 스크립트: 한 줄만. modulepreload로 .jsx 미리 불러오지 않음 -->
 
-    <!-- CSP: data: 스크립트 주입 차단 -->
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'; object-src 'none'">
-    <script type="module" crossorigin src="/assets/index-XpcX2Vby.js"></script>
+    <!-- ✅ CSP: GA 도메인 허용 (메타 방식) -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com; img-src 'self' data: https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; object-src 'none'">
+    <script type="module" crossorigin src="/assets/index-Wku8L6wJ.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-C-bqgmZu.css">
   </head>
   <body>
