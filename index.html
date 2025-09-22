@@ -9,13 +9,46 @@
     <meta name="googlebot" content="index,follow" />
     <meta name="format-detection" content="telephone=no" />
 
+    <!-- ✅ GA4 연결 최적화 -->
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://www.google-analytics.com">
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+    <link rel="dns-prefetch" href="https://www.google-analytics.com">
+
     <!-- ✅ GA4: Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-WBW13K5H5E"></script>
     <script>
+      // gtag 초기화
       window.dataLayer = window.dataLayer || [];
       function gtag(){ dataLayer.push(arguments); }
+      window.gtag = gtag;
+
+      // 중복 집계를 막기 위해 자동 page_view 끄고, 수동 전송 사용
       gtag('js', new Date());
-      gtag('config', 'G-WBW13K5H5E');
+      gtag('config', 'G-WBW13K5H5E', { send_page_view: false });
+
+      // 해시 라우팅용 page_view 전송기
+      (function () {
+        function currentPath() {
+          // 해시 라우팅을 GA 경로로 반영
+          var hash = location.hash || '';
+          return (location.pathname + hash) || '/';
+        }
+        var lastPath = null;
+        function trackPageView() {
+          var p = currentPath();
+          if (p === lastPath) return; // 동일 경로 중복 방지
+          lastPath = p;
+          gtag('event', 'page_view', {
+            page_title: document.title,
+            page_location: location.href,
+            page_path: p
+          });
+        }
+        // 초기 1회 + 라우트 변경마다 전송
+        window.addEventListener('load', trackPageView);
+        window.addEventListener('hashchange', trackPageView);
+      })();
     </script>
 
     <!-- ✅ 서비스 워커를 가능한 빨리 등록 + 최초 1회 자동 새로고침 -->
@@ -94,9 +127,9 @@
 
     <!-- 진입 스크립트: 한 줄만. modulepreload로 .jsx 미리 불러오지 않음 -->
 
-    <!-- ✅ CSP: GA 도메인 허용(필수 최소치만 추가) -->
+    <!-- ✅ CSP: GA 전송에 필요한 최소 도메인 허용 -->
     <meta http-equiv="Content-Security-Policy"
-          content="script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; object-src 'none'">
+          content="script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com; img-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com; object-src 'none'">
     <script type="module" crossorigin src="/assets/index-Wku8L6wJ.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-C-bqgmZu.css">
   </head>
