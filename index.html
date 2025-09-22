@@ -9,6 +9,15 @@
     <meta name="googlebot" content="index,follow" />
     <meta name="format-detection" content="telephone=no" />
 
+    <!-- ✅ GA4: Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WBW13K5H5E"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'G-WBW13K5H5E');
+    </script>
+
     <!-- ✅ 서비스 워커를 가능한 빨리 등록 + 최초 1회 자동 새로고침 -->
     <script>
       (function () {
@@ -85,22 +94,13 @@
 
     <!-- 진입 스크립트: 한 줄만. modulepreload로 .jsx 미리 불러오지 않음 -->
 
-    <!-- CSP: data: 스크립트 주입 차단 -->
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'; object-src 'none'">
+    <!-- ✅ CSP: GA 도메인 허용(필수 최소치만 추가) -->
+    <meta http-equiv="Content-Security-Policy"
+          content="script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; object-src 'none'">
     <script type="module" crossorigin src="/assets/index-Wku8L6wJ.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-C-bqgmZu.css">
   </head>
   <body>
     <div id="root"></div>
-
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WBW13K5H5E"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-WBW13K5H5E');
-  </script>
   </body>
 </html>
