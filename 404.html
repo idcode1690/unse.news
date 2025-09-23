@@ -4,21 +4,38 @@
     <meta charset="utf-8" />
     <title>Redirecting…</title>
     <meta name="robots" content="noindex" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script>
       (function (l) {
-        // 파일(자원)처럼 보이면 리다이렉트 안 함 (CSS/JS/이미지/맵/웹매니페스트/서비스워커 등)
+        // 파일(확장자)로 보이는 요청은 리디렉트하지 않음 (rss.xml, sitemap.xml, robots.txt 등)
         var path = l.pathname || '/';
-        var looksLikeFile = /\.[a-z0-9]{1,8}$/i.test(path) || /^\/assets\//.test(path) || path === '/sw.js';
+        var looksLikeFile = /\.[A-Za-z0-9]+$/.test(path);
         if (looksLikeFile) return;
 
-        // SPA 라우트로 추정될 때만 /?p= 경유
-        var full = path + l.search + l.hash;
-        var usp = new URLSearchParams(l.search);
-        if (!usp.get('p')) {
-          l.replace(l.origin + '/?p=' + encodeURIComponent(full));
+        // 앱 라우트만 루트로 우회: /, /result, /fortune, /lotto, /compat, /ask
+        var APP_ROUTES = new Set(['/', '/result', '/fortune', '/lotto', '/compat', '/ask']);
+        var clean = path.replace(/\/+$/, ''); // 뒤 슬래시 정규화
+        if (clean === '') clean = '/';
+
+        if (APP_ROUTES.has(clean)) {
+          // /?p=/result 형태로 루트에 경로를 넘김
+          var full = path + l.search + l.hash;
+          var usp = new URLSearchParams(l.search);
+          if (!usp.get('p')) {
+            l.replace(l.origin + '/?p=' + encodeURIComponent(full));
+          }
         }
+        // 그 외 경로는 그대로 404 페이지 유지 (깃허브 기본 404 렌더)
       })(window.location);
     </script>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple Color Emoji','Segoe UI Emoji'; padding: 24px; color:#111; }
+      h1 { font-size: 20px; margin: 0 0 8px; }
+      p { color:#555; margin: 0; }
+    </style>
   </head>
-  <body></body>
+  <body>
+    <h1>페이지를 찾을 수 없습니다</h1>
+    <p>요청하신 주소가 정확한지 확인해 주세요.</p>
+  </body>
 </html>
