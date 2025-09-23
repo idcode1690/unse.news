@@ -9,36 +9,6 @@
     <meta name="googlebot" content="index,follow" />
     <meta name="format-detection" content="telephone=no" />
 
-    <!-- ✅ GA4: Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WBW13K5H5E"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){ dataLayer.push(arguments); }
-      gtag('js', new Date());
-      gtag('config', 'G-WBW13K5H5E');
-    </script>
-
-    <!-- ✅ 서비스 워커를 가능한 빨리 등록 + 최초 1회 자동 새로고침 -->
-    <script>
-      (function () {
-        if ('serviceWorker' in navigator) {
-          const KEY = 'sw-first-load-done';
-          const firstDone = sessionStorage.getItem(KEY);
-
-          navigator.serviceWorker.register('/sw.js', { scope: '/' }).then(() => {
-            // 새 SW가 준비되면 메시지 수신
-            navigator.serviceWorker.addEventListener('message', (ev) => {
-              if (ev?.data?.type === 'SW_READY' && !firstDone) {
-                sessionStorage.setItem(KEY, '1');
-                // 첫 설치 후 다시 로드 → 이후부터 /assets/* 가 immutable 헤더로 서빙
-                location.reload();
-              }
-            });
-          }).catch(console.error);
-        }
-      })();
-    </script>
-
     <title>운세뉴스</title>
     <meta
       name="description"
@@ -90,15 +60,30 @@
       }
     </script>
 
-    <!-- CSS (빌드시 /assets/index-*.css 로 치환됨) -->
+    <!-- CSS (Vite가 빌드시 /assets/index-*.css로 치환) -->
 
-    <!-- 진입 스크립트: 한 줄만. modulepreload로 .jsx 미리 불러오지 않음 -->
+    <!-- Vite 진입 스크립트 -->
 
-    <!-- ✅ CSP: GA 도메인 허용(필수 최소치만 추가) -->
+    <!-- CSP: 개발 HMR(WebSocket) + GA/gtag/gstatic/analytics 허용 -->
+    <!-- 주의: frame-ancestors는 <meta>에서 무시되므로 제거 -->
     <meta http-equiv="Content-Security-Policy"
-          content="script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; object-src 'none'">
-    <script type="module" crossorigin src="/assets/index-Wku8L6wJ.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-C-bqgmZu.css">
+      content="
+        default-src 'self';
+        script-src 'self' 'unsafe-inline' blob: https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://www.gstatic.com;
+        script-src-elem 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://www.gstatic.com;
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data: blob: https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://www.gstatic.com https://stats.g.doubleclick.net;
+        connect-src 'self' ws: wss: https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://stats.g.doubleclick.net;
+        worker-src 'self' blob:;
+        object-src 'none';
+        base-uri 'self';
+      ">
+
+    <!-- 개발 모드에선 GA 로딩 안함 + 등록된 SW 전부 정리 -->
+
+    <!-- 서비스 워커: Prod에서만 등록, preloadResponse를 기다림 -->
+    <script type="module" crossorigin src="/assets/index-DEUf_PyA.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DMnpship.css">
   </head>
   <body>
     <div id="root"></div>
