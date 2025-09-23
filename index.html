@@ -9,111 +9,129 @@
     <meta name="googlebot" content="index,follow" />
     <meta name="format-detection" content="telephone=no" />
 
-    <!-- ✅ 1) 배포용 base 고정: 서브경로/GitHub Pages/커스텀 도메인 모두 안전 -->
-    <!--    Vite의 build(base:"./")와 맞물려 모든 자산을 현재 디렉터리 기준으로 해석 -->
-    <base href="./">
-
-    <!-- ✅ 2) 혹시 브라우저/확장프로그램/SW 개입으로 base 해석이 비정상일 때 대비 -->
-    <!--    번들 로딩보다 "앞"에서 보정해 주어야 new URL(..., base) 에러를 원천 차단 -->
-    <script>
-      (function ensureBase() {
-        try {
-          // base 태그가 없거나, base가 절대 URL로 인식되지 않는다면 보정
-          var hasBase = !!document.querySelector('head base[href]');
-          var isHttp = /^https?:/i.test(document.baseURI || '');
-          if (!hasBase || !isHttp) {
-            var b = document.querySelector('head base') || document.createElement('base');
-            // 현재 문서 경로의 디렉터리까지를 절대경로로 세팅
-            var href = location.href.replace(/[#?].*$/, '');
-            href = href.slice(0, href.lastIndexOf('/') + 1);
-            b.setAttribute('href', href);
-            if (!hasBase) document.head.insertBefore(b, document.head.firstChild);
-          }
-        } catch {}
-      })();
-    </script>
-
-    <!-- ✅ 3) 서비스워커: 개발은 해제, 배포는 상대경로로 등록(서브경로 안전) -->
-    <script>
-      (function () {
-        if (!('serviceWorker' in navigator)) return;
-
-        var host = location.hostname;
-        var isLocal = host === 'localhost' || host === '127.0.0.1' || host.endsWith('.local');
-
-        if (isLocal) {
-          navigator.serviceWorker.getRegistrations?.().then(function (regs) {
-            regs.forEach(function (r) { r.unregister(); });
-          });
-          if (window.caches && caches.keys) {
-            caches.keys().then(function (keys) { keys.forEach(function (k) { caches.delete(k); }); });
-          }
-          return;
-        }
-
-        // 배포: 상대경로 사용 (new URL 미사용)
-        navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(console.error);
-      })();
-    </script>
-
     <title>운세뉴스</title>
     <meta
       name="description"
       content="사주팔자, 오늘의 운세, 궁합, 로또 추천을 한 곳에서. 생년월일/시간 입력만으로 간단하게 확인하세요."
     />
 
-    <!-- SEO / OG -->
+    <!-- 캐노니컬/OG는 런타임에 setSEO가 다시 설정 -->
     <link rel="canonical" href="https://unse.news/" />
     <meta name="geo.region" content="KR" />
     <meta property="og:locale" content="ko_KR" />
     <link rel="alternate" href="https://unse.news/" hreflang="ko-kr" />
     <link rel="alternate" href="https://unse.news/" hreflang="x-default" />
+
     <meta property="og:title" content="운세뉴스" />
     <meta property="og:description" content="사주팔자, 오늘의 운세, 궁합, 로또 추천을 한 곳에서." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://unse.news/" />
-    <meta property="og:image" content="./og-image.png" />
+    <meta property="og:image" content="/og-image.png" />
     <meta property="og:site_name" content="운세뉴스" />
+
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="운세뉴스" />
     <meta name="twitter:description" content="사주팔자, 오늘의 운세, 궁합, 로또 추천을 한 곳에서." />
-    <meta name="twitter:image" content="./og-image.png" />
+    <meta name="twitter:image" content="/og-image.png" />
 
-    <!-- PWA / 아이콘: 상대경로 유지 -->
-    <link rel="manifest" href="./site.webmanifest" />
+    <link rel="manifest" href="site.webmanifest" />
     <meta name="theme-color" content="#ffffff" />
-    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
 
-    <!-- 구조화 데이터 -->
-    <script type="application/ld+json">
-      {
-        "@context":"https://schema.org",
-        "@type":"Organization",
-        "name":"운세뉴스",
-        "url":"https://unse.news/",
-        "logo":"https://unse.news/og-image.png"
-      }
-    </script>
-    <script type="application/ld+json">
-      {
-        "@context":"https://schema.org",
-        "@type":"WebSite",
-        "name":"운세뉴스",
-        "url":"https://unse.news/",
-        "inLanguage":"ko-KR"
-      }
-    </script>
-
-    <!-- CSS (개발: /src/index.css, 빌드: /assets/index-*.css 로 대체됨) -->
-
-    <!-- 엔트리 스크립트 -->
-
-    <!-- CSP -->
+    <!-- CSP (개발/배포 공통, 외부 스크립트 차단) -->
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'; object-src 'none'">
-    <script type="module" crossorigin src="./assets/index-BEY0Zc2s.js"></script>
+
+    <!-- ✅ 해시 라우팅 강제 정상화 + 구버전 링크 방지 -->
+    <script>
+      (function () {
+        var ROUTES = new Set(['/', '/result', '/fortune', '/lotto', '/compat', '/ask', '']);
+        function pathFromHash(hash) {
+          if (!hash) return '/';
+          if (hash.startsWith('#/')) return hash.slice(1);
+          if (hash.startsWith('#')) return '/' + hash.slice(1);
+          return hash;
+        }
+        function toHash(pathname) {
+          if (!pathname || pathname === '/') return '#/';
+          return '#' + pathname.replace(/^\/+/, '');
+        }
+        // 1) 첫 진입 시 경로( /result )면 해시로 치환
+        try {
+          var isHash = location.hash && location.hash.startsWith('#/');
+          if (!isHash && ROUTES.has(location.pathname)) {
+            location.replace(toHash(location.pathname));
+          }
+        } catch {}
+
+        // 2) 모든 <a> 클릭 가로채서 해시로 전환 (구번들 방어)
+        document.addEventListener('click', function (e) {
+          var a = e.target && e.target.closest && e.target.closest('a[href]');
+          if (!a) return;
+          var href = a.getAttribute('href');
+          if (!href || href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+          var url;
+          try { url = new URL(href, location.href); } catch { return; }
+          if (url.origin === location.origin && ROUTES.has(url.pathname)) {
+            e.preventDefault();
+            location.hash = toHash(url.pathname);
+          }
+        }, true);
+      })();
+    </script>
+
+    <!-- CSS (빌드시 /assets/index-*.css 로 치환) -->
+
+    <!-- 진입 스크립트 -->
+
+    <!-- 빌드 ID: 배포마다 바꿔 주세요 (SW 캐시 무효화 트리거) -->
+    <meta name="x-build-id" content="2025-09-23-01">
+    <script type="module" crossorigin src="./assets/index-C4xOQCCs.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-CtajoLe6.css">
   </head>
   <body>
     <div id="root"></div>
+
+    <!-- ✅ SW 등록 + 새 빌드 감지 시 캐시 비우고 새로고침 -->
+    <script>
+      (function(){
+        var BUILD_ID = (document.querySelector('meta[name="x-build-id"]')||{}).content || '';
+        var KEY='unse_build_id';
+        function rememberBuild() {
+          try { localStorage.setItem(KEY, BUILD_ID); } catch {}
+        }
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', function(){
+            navigator.serviceWorker.register('./sw.js', { scope: './' }).then(function(reg){
+              // 항상 최신 검사
+              try { reg.update(); } catch {}
+            }).catch(console.error);
+          });
+
+          navigator.serviceWorker.addEventListener('message', function(ev){
+            if (!ev || !ev.data) return;
+            if (ev.data.type === 'SW_READY' || ev.data.type === 'SW_UPDATED') {
+              // 새 SW 설치/활성화 → 캐시 비우고 새로고침
+              if (navigator.serviceWorker.controller) {
+                try { navigator.serviceWorker.controller.postMessage({type:'CLEAR_ALL_CACHES'}); } catch {}
+              }
+              rememberBuild();
+              setTimeout(function(){ location.reload(); }, 250);
+            }
+          });
+
+          // 빌드 ID가 바뀌었으면 SW에 캐시 삭제 지시
+          try {
+            var prev = localStorage.getItem(KEY);
+            if (prev && prev !== BUILD_ID && navigator.serviceWorker.controller) {
+              navigator.serviceWorker.controller.postMessage({type:'CLEAR_ALL_CACHES'});
+              rememberBuild();
+              setTimeout(function(){ location.reload(); }, 300);
+            } else if (!prev) {
+              rememberBuild();
+            }
+          } catch {}
+        }
+      })();
+    </script>
   </body>
 </html>
