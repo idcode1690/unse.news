@@ -1,48 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  HashRouter 기반 SPA이므로, 실제 내비게이션은 #/result 등으로 동작합니다.
-  하지만 검색엔진 사이트맵에서는 #fragment를 기록할 수 없으므로
-  /result, /fortune, /compat, /lotto 경로를 직접 노출합니다.
-  (서버/호스팅 레벨에서 index.html 로 리라이트 필요)
--->
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- 홈 -->
+<urlset
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml"
+>
   <url>
     <loc>https://unse.news/</loc>
-    <lastmod>2025-09-09</lastmod>
-    <changefreq>daily</changefreq>
+    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
-  <!-- 사주팔자 -->
   <url>
-    <loc>https://unse.news/result</loc>
-    <lastmod>2025-09-09</lastmod>
+    <loc>https://unse.news/result/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
 
-  <!-- 오늘의 운세 -->
   <url>
-    <loc>https://unse.news/fortune</loc>
-    <lastmod>2025-09-09</lastmod>
-    <changefreq>daily</changefreq>
+    <loc>https://unse.news/fortune/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://unse.news/lotto/</loc>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
-  <!-- 궁합 -->
   <url>
-    <loc>https://unse.news/compat</loc>
-    <lastmod>2025-09-09</lastmod>
+    <loc>https://unse.news/compat/</loc>
     <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>
 
-  <!-- 로또 -->
   <url>
-    <loc>https://unse.news/lotto</loc>
-    <lastmod>2025-09-09</lastmod>
+    <loc>https://unse.news/ask/</loc>
     <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.7</priority>
   </url>
 </urlset>
