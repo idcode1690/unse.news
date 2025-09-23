@@ -9,6 +9,9 @@
     <meta name="googlebot" content="index,follow" />
     <meta name="format-detection" content="telephone=no" />
 
+    <!-- ✅ 모든 상대 URL을 루트(/) 기준으로 강제 -->
+    <base href="/" />
+
     <title>운세뉴스</title>
     <meta
       name="description"
@@ -34,15 +37,16 @@
     <meta name="twitter:description" content="사주팔자, 오늘의 운세, 궁합, 로또 추천을 한 곳에서." />
     <meta name="twitter:image" content="/og-image.png" />
 
-    <link rel="manifest" href="site.webmanifest" />
+    <!-- ✅ 반드시 절대 경로 -->
+    <link rel="manifest" href="./site.webmanifest" />
     <meta name="theme-color" content="#ffffff" />
-    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
 
     <!-- CSP (개발/배포 공통, 외부 스크립트 차단) -->
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'; object-src 'none'">
 
+    <!-- 1) 404.html이 붙여준 ?p=/path 를 다시 예쁜 경로로 복원 -->
     <script>
-      // 1) 404.html이 붙여준 ?p=/path 를 다시 예쁜 경로로 복원
       (function () {
         try {
           var usp = new URLSearchParams(window.location.search);
@@ -55,43 +59,8 @@
       })();
     </script>
 
-    <!-- ✅ 해시 라우팅 강제 정상화 + 구버전 링크 방지 -->
-    <script>
-      (function () {
-        var ROUTES = new Set(['/', '/result', '/fortune', '/lotto', '/compat', '/ask', '']);
-        function pathFromHash(hash) {
-          if (!hash) return '/';
-          if (hash.startsWith('#/')) return hash.slice(1);
-          if (hash.startsWith('#')) return '/' + hash.slice(1);
-          return hash;
-        }
-        function toHash(pathname) {
-          if (!pathname || pathname === '/') return '#/';
-          return '#' + pathname.replace(/^\/+/, '');
-        }
-        // 1) 첫 진입 시 경로( /result )면 해시로 치환
-        try {
-          var isHash = location.hash && location.hash.startsWith('#/');
-          if (!isHash && ROUTES.has(location.pathname)) {
-            location.replace(toHash(location.pathname));
-          }
-        } catch {}
-
-        // 2) 모든 <a> 클릭 가로채서 해시로 전환 (구번들 방어)
-        document.addEventListener('click', function (e) {
-          var a = e.target && e.target.closest && e.target.closest('a[href]');
-          if (!a) return;
-          var href = a.getAttribute('href');
-          if (!href || href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
-          var url;
-          try { url = new URL(href, location.href); } catch { return; }
-          if (url.origin === location.origin && ROUTES.has(url.pathname)) {
-            e.preventDefault();
-            location.hash = toHash(url.pathname);
-          }
-        }, true);
-      })();
-    </script>
+    <!-- ✅ 해시 강제/변환 스크립트 제거: 라우팅은 앱에서 처리 -->
+    <!-- (이전 코드의 해시 변환 블록을 전부 삭제했습니다) -->
 
     <!-- CSS (빌드시 /assets/index-*.css 로 치환) -->
 
@@ -105,7 +74,7 @@
   <body>
     <div id="root"></div>
 
-    <!-- ✅ SW 등록 + 새 빌드 감지 시 캐시 비우고 새로고침 -->
+    <!-- ✅ SW 등록: 반드시 절대 경로로 /sw.js, scope:'/' -->
     <script>
       (function(){
         var BUILD_ID = (document.querySelector('meta[name="x-build-id"]')||{}).content || '';
@@ -115,8 +84,7 @@
         }
         if ('serviceWorker' in navigator) {
           window.addEventListener('load', function(){
-            navigator.serviceWorker.register('./sw.js', { scope: './' }).then(function(reg){
-              // 항상 최신 검사
+            navigator.serviceWorker.register('/sw.js', { scope: '/' }).then(function(reg){
               try { reg.update(); } catch {}
             }).catch(console.error);
           });
@@ -124,7 +92,6 @@
           navigator.serviceWorker.addEventListener('message', function(ev){
             if (!ev || !ev.data) return;
             if (ev.data.type === 'SW_READY' || ev.data.type === 'SW_UPDATED') {
-              // 새 SW 설치/활성화 → 캐시 비우고 새로고침
               if (navigator.serviceWorker.controller) {
                 try { navigator.serviceWorker.controller.postMessage({type:'CLEAR_ALL_CACHES'}); } catch {}
               }
@@ -133,7 +100,6 @@
             }
           });
 
-          // 빌드 ID가 바뀌었으면 SW에 캐시 삭제 지시
           try {
             var prev = localStorage.getItem(KEY);
             if (prev && prev !== BUILD_ID && navigator.serviceWorker.controller) {

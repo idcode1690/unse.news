@@ -6,10 +6,10 @@
     <meta name="robots" content="noindex" />
     <script>
       (function (l) {
-        // 현재 전체 경로(/path?query#hash)를 보존해 쿼리로 싣고 루트로 이동
+        // 현재 경로(/result/?q=1#x)를 보존해 쿼리로 넘기고, 루트로 이동
         var full = l.pathname + l.search + l.hash;
-        // 중복 방지: 이미 ?p=가 있으면 그대로 둠
-        if (!l.search || !new URLSearchParams(l.search).get('p')) {
+        var usp = new URLSearchParams(l.search);
+        if (!usp.get('p')) {
           l.replace(l.origin + '/?p=' + encodeURIComponent(full));
         }
       })(window.location);
