@@ -1,90 +1,131 @@
-/* public/sw.js */
-const SW_VERSION = 'v1.0.4';
-const SHELL_CACHE = 'shell-' + SW_VERSION;
-const ASSET_CACHE = 'assets-' + SW_VERSION;
+// public/sw.js
+// 정적 자산은 캐시, 문서는 네비게이션 친화적으로 처리.
+// 배포 시 CACHE_VERSION을 자동으로 바꾸기 어렵다면, 최소한 이 값을 수동으로 올리세요.
+const CACHE_VERSION = 'v1.3.0'; // ★ 배포마다 올리기
+const PRECACHE = `unse-precache-${CACHE_VERSION}`;
+const RUNTIME  = `unse-runtime-${CACHE_VERSION}`;
 
-// 앱 셸 프리캐시
-self.addEventListener('install', (evt) => {
-  evt.waitUntil(
-    caches.open(SHELL_CACHE).then((c) =>
-      c.addAll([
-        '/',           // 루트
-        '/index.html', // 안전하게 함께
-      ])
-    )
-  );
-  self.skipWaiting();
+const PRECACHE_URLS = [
+  './',
+  './404.html',
+  './favicon.svg',
+  './site.webmanifest',
+  './og-image.png'
+];
+
+const ONE_YEAR = 60 * 60 * 24 * 365;
+
+self.addEventListener('install', (event) => {
+  event.waitUntil((async () => {
+    try {
+      const cache = await caches.open(PRECACHE);
+      await cache.addAll(PRECACHE_URLS);
+    } catch {}
+    await self.skipWaiting();
+  })());
 });
 
-self.addEventListener('activate', (evt) => {
-  evt.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys
-          .filter((k) => ![SHELL_CACHE, ASSET_CACHE].includes(k))
-          .map((k) => caches.delete(k))
-      )
-    )
-  );
-  self.clients.claim();
+self.addEventListener('activate', (event) => {
+  event.waitUntil((async () => {
+    try {
+      const keys = await caches.keys();
+      await Promise.all(
+        keys.map((k) => (k.includes(CACHE_VERSION) ? null : caches.delete(k)))
+      );
+    } catch {}
+    await self.clients.claim();
+
+    // 모든 클라이언트에 갱신 알림
+    const all = await self.clients.matchAll({ includeUncontrolled: true });
+    for (const c of all) {
+      try { c.postMessage({ type: 'SW_UPDATED', version: CACHE_VERSION }); } catch {}
+    }
+  })());
 });
 
-// 네비게이션은 항상 index.html 폴백(오프라인/404 방지)
-async function handleNavigation(request) {
+// 외부 요청 필터
+function isHttp(u) { return u.protocol === 'http:' || u.protocol === 'https:'; }
+function sameOrigin(u) { try { return u.origin === self.location.origin; } catch { return false; } }
+function isAsset(u) { return u.pathname.startsWith('/assets/'); }
+function isDoc(u)   { return u.pathname === '/' || u.pathname.endsWith('.html'); }
+
+function immutableHeaders(h) {
+  const out = new Headers(h);
+  out.set('Cache-Control', `public, max-age=${ONE_YEAR}, immutable`);
+  return out;
+}
+function noStoreHeaders(h) {
+  const out = new Headers(h);
+  out.set('Cache-Control', 'no-store');
+  return out;
+}
+
+async function cacheFirstImmutable(request) {
+  const cache = await caches.open(RUNTIME);
+  const cached = await cache.match(request);
+  if (cached) return cached;
+  const resp = await fetch(request).catch(() => null);
+  if (resp && resp.status === 200) {
+    try { await cache.put(request, resp.clone()); } catch {}
+  }
+  return resp || new Response('', { status: 504 });
+}
+
+async function cacheFirstDoc(request) {
+  // 문서는 네비게이션에 중요 → 네트워크 우선, 실패 시 캐시
   try {
     const net = await fetch(request);
-    if (net && net.ok) return net;
-  } catch {}
-  const cache = await caches.open(SHELL_CACHE);
-  const cached = await cache.match('/');
-  return cached || Response.error();
+    return new Response(net.body, { status: net.status, statusText: net.statusText, headers: noStoreHeaders(net.headers) });
+  } catch {
+    const cache = await caches.open(PRECACHE);
+    const cached = await cache.match('./');
+    return cached || new Response('', { status: 504 });
+  }
 }
 
-// 정적 에셋: stale-while-revalidate
-async function handleAsset(request) {
-  const cache = await caches.open(ASSET_CACHE);
-  const cached = await cache.match(request);
-  const fetching = fetch(request)
-    .then((res) => {
-      if (res && res.ok) cache.put(request, res.clone());
-      return res;
-    })
-    .catch(() => null);
-  return cached || fetching || Response.error();
-}
+self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  let url;
+  try { url = new URL(req.url); } catch { return; }
+  if (!isHttp(url) || !sameOrigin(url)) return;
 
-self.addEventListener('fetch', (evt) => {
-  const req = evt.request;
-  const url = new URL(req.url);
-
-  if (url.origin !== self.location.origin) return; // 외부는 패스
-  if (req.method !== 'GET') return;
-
-  const accept = req.headers.get('accept') || '';
-  const isNav = req.mode === 'navigate' || accept.includes('text/html');
-
-  // 매니페스트/SW는 네트워크 우선
-  if (url.pathname.endsWith('site.webmanifest') || url.pathname === '/sw.js') {
-    evt.respondWith(fetch(req));
+  if (isAsset(url)) {
+    event.respondWith(cacheFirstImmutable(req));
+    return;
+  }
+  if (isDoc(url)) {
+    event.respondWith(cacheFirstDoc(req));
     return;
   }
 
-  if (isNav) {
-    evt.respondWith(handleNavigation(req));
-    return;
-  }
-
-  if (/\.(js|css|svg|png|jpg|jpeg|gif|webp|avif|ico|woff2?|ttf|otf)$/.test(url.pathname)) {
-    evt.respondWith(handleAsset(req));
-  }
+  // 그 외 요청은 네트워크 우선 + 캐시 보조
+  event.respondWith((async () => {
+    const cache = await caches.open(RUNTIME);
+    try {
+      const net = await fetch(req);
+      if (net && net.status === 200 && req.method === 'GET') {
+        try { cache.put(req, net.clone()); } catch {}
+      }
+      return net;
+    } catch {
+      const cached = await cache.match(req);
+      return cached || new Response('', { status: 504 });
+    }
+  })());
 });
 
-// (선택) 캐시 비우기 훅 — 필요할 때만 수동 호출
-self.addEventListener('message', (evt) => {
-  if (!evt.data) return;
-  if (evt.data.type === 'CLEAR_ALL_CACHES') {
-    evt.waitUntil(
-      caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
-    );
+// ✅ 페이지에서 캐시 비우기 요청
+self.addEventListener('message', (event) => {
+  const data = event.data || {};
+  if (data.type === 'CLEAR_ALL_CACHES') {
+    event.waitUntil((async () => {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
+      // 다음 요청부터는 새 자산을 내려받도록 알림
+      const all = await self.clients.matchAll({ includeUncontrolled: true });
+      for (const c of all) {
+        try { c.postMessage({ type: 'SW_READY' }); } catch {}
+      }
+    })());
   }
 });
