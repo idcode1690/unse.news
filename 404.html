@@ -6,8 +6,13 @@
     <meta name="robots" content="noindex" />
     <script>
       (function (l) {
-        // 현재 경로(/result/?q=1#x)를 보존해 쿼리로 넘기고, 루트로 이동
-        var full = l.pathname + l.search + l.hash;
+        // 파일(자원)처럼 보이면 리다이렉트 안 함 (CSS/JS/이미지/맵/웹매니페스트/서비스워커 등)
+        var path = l.pathname || '/';
+        var looksLikeFile = /\.[a-z0-9]{1,8}$/i.test(path) || /^\/assets\//.test(path) || path === '/sw.js';
+        if (looksLikeFile) return;
+
+        // SPA 라우트로 추정될 때만 /?p= 경유
+        var full = path + l.search + l.hash;
         var usp = new URLSearchParams(l.search);
         if (!usp.get('p')) {
           l.replace(l.origin + '/?p=' + encodeURIComponent(full));
