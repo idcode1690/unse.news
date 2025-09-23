@@ -9,36 +9,80 @@
     <meta name="googlebot" content="index,follow" />
     <meta name="format-detection" content="telephone=no" />
 
+    <!-- ✅ 1) 배포용 base 고정: 서브경로/GitHub Pages/커스텀 도메인 모두 안전 -->
+    <!--    Vite의 build(base:"./")와 맞물려 모든 자산을 현재 디렉터리 기준으로 해석 -->
+    <base href="./">
+
+    <!-- ✅ 2) 혹시 브라우저/확장프로그램/SW 개입으로 base 해석이 비정상일 때 대비 -->
+    <!--    번들 로딩보다 "앞"에서 보정해 주어야 new URL(..., base) 에러를 원천 차단 -->
+    <script>
+      (function ensureBase() {
+        try {
+          // base 태그가 없거나, base가 절대 URL로 인식되지 않는다면 보정
+          var hasBase = !!document.querySelector('head base[href]');
+          var isHttp = /^https?:/i.test(document.baseURI || '');
+          if (!hasBase || !isHttp) {
+            var b = document.querySelector('head base') || document.createElement('base');
+            // 현재 문서 경로의 디렉터리까지를 절대경로로 세팅
+            var href = location.href.replace(/[#?].*$/, '');
+            href = href.slice(0, href.lastIndexOf('/') + 1);
+            b.setAttribute('href', href);
+            if (!hasBase) document.head.insertBefore(b, document.head.firstChild);
+          }
+        } catch {}
+      })();
+    </script>
+
+    <!-- ✅ 3) 서비스워커: 개발은 해제, 배포는 상대경로로 등록(서브경로 안전) -->
+    <script>
+      (function () {
+        if (!('serviceWorker' in navigator)) return;
+
+        var host = location.hostname;
+        var isLocal = host === 'localhost' || host === '127.0.0.1' || host.endsWith('.local');
+
+        if (isLocal) {
+          navigator.serviceWorker.getRegistrations?.().then(function (regs) {
+            regs.forEach(function (r) { r.unregister(); });
+          });
+          if (window.caches && caches.keys) {
+            caches.keys().then(function (keys) { keys.forEach(function (k) { caches.delete(k); }); });
+          }
+          return;
+        }
+
+        // 배포: 상대경로 사용 (new URL 미사용)
+        navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(console.error);
+      })();
+    </script>
+
     <title>운세뉴스</title>
     <meta
       name="description"
       content="사주팔자, 오늘의 운세, 궁합, 로또 추천을 한 곳에서. 생년월일/시간 입력만으로 간단하게 확인하세요."
     />
 
+    <!-- SEO / OG -->
     <link rel="canonical" href="https://unse.news/" />
     <meta name="geo.region" content="KR" />
     <meta property="og:locale" content="ko_KR" />
     <link rel="alternate" href="https://unse.news/" hreflang="ko-kr" />
     <link rel="alternate" href="https://unse.news/" hreflang="x-default" />
-
-    <!-- Open Graph -->
     <meta property="og:title" content="운세뉴스" />
     <meta property="og:description" content="사주팔자, 오늘의 운세, 궁합, 로또 추천을 한 곳에서." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://unse.news/" />
-    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image" content="./og-image.png" />
     <meta property="og:site_name" content="운세뉴스" />
-
-    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="운세뉴스" />
     <meta name="twitter:description" content="사주팔자, 오늘의 운세, 궁합, 로또 추천을 한 곳에서." />
-    <meta name="twitter:image" content="/og-image.png" />
+    <meta name="twitter:image" content="./og-image.png" />
 
-    <!-- PWA / 아이콘 -->
-    <link rel="manifest" href="site.webmanifest" />
+    <!-- PWA / 아이콘: 상대경로 유지 -->
+    <link rel="manifest" href="./site.webmanifest" />
     <meta name="theme-color" content="#ffffff" />
-    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
 
     <!-- 구조화 데이터 -->
     <script type="application/ld+json">
@@ -60,29 +104,13 @@
       }
     </script>
 
-    <!-- CSS (Vite가 빌드시 /assets/index-*.css로 치환) -->
+    <!-- CSS (개발: /src/index.css, 빌드: /assets/index-*.css 로 대체됨) -->
 
-    <!-- Vite 진입 스크립트 -->
+    <!-- 엔트리 스크립트 -->
 
-    <!-- CSP: 개발 HMR(WebSocket) + GA/gtag/gstatic/analytics 허용 -->
-    <!-- 주의: frame-ancestors는 <meta>에서 무시되므로 제거 -->
-    <meta http-equiv="Content-Security-Policy"
-      content="
-        default-src 'self';
-        script-src 'self' 'unsafe-inline' blob: https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://www.gstatic.com;
-        script-src-elem 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://www.gstatic.com;
-        style-src 'self' 'unsafe-inline';
-        img-src 'self' data: blob: https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://www.gstatic.com https://stats.g.doubleclick.net;
-        connect-src 'self' ws: wss: https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://stats.g.doubleclick.net;
-        worker-src 'self' blob:;
-        object-src 'none';
-        base-uri 'self';
-      ">
-
-    <!-- 개발 모드에선 GA 로딩 안함 + 등록된 SW 전부 정리 -->
-
-    <!-- 서비스 워커: Prod에서만 등록, preloadResponse를 기다림 -->
-    <script type="module" crossorigin src="./assets/index-CNdVkFF5.js"></script>
+    <!-- CSP -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'; object-src 'none'">
+    <script type="module" crossorigin src="./assets/index-DJS0M77R.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-CtajoLe6.css">
   </head>
   <body>
