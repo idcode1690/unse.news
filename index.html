@@ -41,6 +41,20 @@
     <!-- CSP (개발/배포 공통, 외부 스크립트 차단) -->
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'; object-src 'none'">
 
+    <script>
+      // 1) 404.html이 붙여준 ?p=/path 를 다시 예쁜 경로로 복원
+      (function () {
+        try {
+          var usp = new URLSearchParams(window.location.search);
+          var p = usp.get('p');
+          if (p) {
+            // 히스토리 경로를 /path 로 바꾸고 쿼리에서 p 제거
+            history.replaceState(null, '', p);
+          }
+        } catch (e) {}
+      })();
+    </script>
+
     <!-- ✅ 해시 라우팅 강제 정상화 + 구버전 링크 방지 -->
     <script>
       (function () {
