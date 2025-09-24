@@ -78,50 +78,54 @@
 
     <!-- CSS (빌드시 /assets/index-*.css 로 치환) -->
 
-    <!-- Google tag (gtag.js) -->
+    <!-- Google tag (gtag.js) — ★ 수정: SPA 전환 추적을 config 방식으로 일원화 -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-WBW13K5H5E"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){ dataLayer.push(arguments); }
 
-      // ★ 자동 page_view 비활성화 (중복/누락 방지 → 수동 전송으로 일원화)
+      // 자동 page_view 비활성화 → 수동 전송만 사용
       gtag('js', new Date());
       gtag('config', 'G-WBW13K5H5E', { send_page_view: false });
 
-      // SPA 라우트 변화시 page_view 수동 전송
       (function () {
-        // 해시를 포함해서 보고 싶다면 true (현재 hash 라우팅 호환성 위해 true 유지)
-        var USE_HASH = true;
-
-        function buildPath() {
-          var p = location.pathname + location.search;
-          if (USE_HASH) p += location.hash || '';
-          return p || '/';
+        // 경로 정규화: 해시는 제외, 루트(/)만 슬래시 유지. 그 외는 슬래시 제거.
+        function normalizePathFrom(raw) {
+          try {
+            var url = raw ? new URL(raw, location.origin) : new URL(location.href);
+            var path = url.pathname || '/';
+            if (path !== '/' && path.endsWith('/')) path = path.slice(0, -1);
+            var qs = url.search || '';
+            return path + qs;
+          } catch {
+            var p = location.pathname || '/';
+            if (p !== '/' && p.endsWith('/')) p = p.slice(0, -1);
+            return p + (location.search || '');
+          }
         }
 
         function sendPageView(pathOverride) {
           if (!window.gtag) return;
-          var path = (typeof pathOverride === 'string' && pathOverride) ? pathOverride : buildPath();
-          gtag('event', 'page_view', {
+          var page_path = normalizePathFrom(pathOverride);
+          var page_location = location.origin + page_path; // 해시 제외
+          gtag('config', 'G-WBW13K5H5E', {
             page_title: document.title,
-            page_location: location.origin + path,
-            page_path: path
+            page_path: page_path,
+            page_location: page_location
           });
         }
 
-        // ★ 최초 진입: 404 복원 경로가 있으면 우선 사용
+        // 최초 1회
         if (window.__restoredPath) {
-          var restored = USE_HASH ? window.__restoredPath : window.__restoredPath.split('#')[0];
-          sendPageView(restored);
+          sendPageView(window.__restoredPath);
         } else {
           sendPageView();
         }
 
-        // hashchange / popstate 발생 시 추적
-        window.addEventListener('hashchange', function(){ sendPageView(); });
-        window.addEventListener('popstate',   function(){ sendPageView(); });
+        // 브라우저 뒤/앞으로
+        window.addEventListener('popstate', function(){ sendPageView(); });
 
-        // pushState/replaceState로 라우팅하는 SPA도 잡기 위한 얕은 패치
+        // history API 사용 시(앱 라우팅)도 집계
         ['pushState','replaceState'].forEach(function(m){
           var orig = history[m];
           history[m] = function() {
@@ -130,6 +134,9 @@
             return ret;
           };
         });
+
+        // (선택) 해시 기반 북마크 호환이 필요한 경우 켜기
+        // window.addEventListener('hashchange', function(){ sendPageView(); });
       })();
     </script>
 
