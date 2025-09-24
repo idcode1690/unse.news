@@ -1,7 +1,7 @@
 // public/sw.js
 // SPA 친화 SW: 네비게이션은 index로 복원, 정적 자산은 immutable 캐시, 그 외는 네트워크 우선.
 // 배포 때마다 버전만 올려 주세요.
-const CACHE_VERSION = 'v1.4.0'; // ★ 배포마다 숫자/태그 변경
+const CACHE_VERSION = 'v1.4.1'; // ★ 배포마다 숫자/태그 변경
 const PRECACHE = `unse-precache-${CACHE_VERSION}`;
 const RUNTIME  = `unse-runtime-${CACHE_VERSION}`;
 
@@ -10,7 +10,11 @@ const PRECACHE_URLS = [
   './404.html',
   './favicon.svg',
   './site.webmanifest',
-  './og-image.png'
+  './og-image.png',
+  // 📌 RSS/Sitemap/Robots를 정적 제공 (메인으로 리다이렉트되는 문제 방지)
+  './rss.xml',
+  './sitemap.xml',
+  './robots.txt'
 ];
 
 const ONE_YEAR = 60 * 60 * 24 * 365;
@@ -34,8 +38,7 @@ self.addEventListener('activate', (event) => {
       await Promise.all(keys.map((k) => (k.includes(CACHE_VERSION) ? null : caches.delete(k))));
     } catch {}
     await self.clients.claim();
-    // ❌ 이전 코드: 여기서 postMessage({ type:'SW_UPDATED' })를 보내면
-    //    페이지가 즉시 새로고침/캐시삭제 → Edge에서 루프가 생길 수 있음.
+    // ❌ 여기서 postMessage로 새로고침 유도하지 않음 (Edge 무한루프 방지)
   })());
 });
 
@@ -43,6 +46,14 @@ self.addEventListener('activate', (event) => {
 function isHttp(u) { return u.protocol === 'http:' || u.protocol === 'https:'; }
 function sameOrigin(u) { try { return u.origin === self.location.origin; } catch { return false; } }
 function isAsset(u) { return u.pathname.startsWith('/assets/'); }
+function isXmlOrSpecial(u) {
+  // rss/sitemap/robots/webmanifest 등은 네비게이션이어도 index로 돌리지 않음
+  return (
+    /\.xml$/i.test(u.pathname) ||
+    /\/robots\.txt$/i.test(u.pathname) ||
+    /\/site\.webmanifest$/i.test(u.pathname)
+  );
+}
 function immutableHeaders(h) {
   const out = new Headers(h);
   out.set('Cache-Control', `public, max-age=${ONE_YEAR}, immutable`);
@@ -92,6 +103,21 @@ self.addEventListener('fetch', (event) => {
   let url;
   try { url = new URL(req.url); } catch { return; }
   if (!isHttp(url) || !sameOrigin(url)) return;
+
+  // 0) XML/robots/webmanifest는 네비게이션이어도 원본으로 응답 (index로 복원 금지)
+  if (isXmlOrSpecial(url)) {
+    event.respondWith((async () => {
+      // 네트워크 우선, 실패 시 프리캐시 폴백
+      try {
+        const net = await fetch(req, { cache: 'no-store' });
+        if (net && net.ok) return net;
+      } catch {}
+      const cache = await caches.open(PRECACHE);
+      const cached = await cache.match(url.pathname.replace(/^\//, './'));
+      return cached || new Response('', { status: 504 });
+    })());
+    return;
+  }
 
   // 1) SPA 네비게이션: 어떤 경로(/result/, /fortune/...)든 문서 진입이면 index로 복원
   if (req.mode === 'navigate') {
@@ -144,8 +170,7 @@ self.addEventListener('message', (event) => {
     event.waitUntil((async () => {
       const keys = await caches.keys();
       await Promise.all(keys.map((k) => caches.delete(k)));
-      // ❌ 예전처럼 여기서 SW_READY를 다시 브로드캐스트하지 않습니다.
-      //    (페이지가 이 신호로 새로고침 → Edge에서 루프 유발 가능)
+      // ❌ 여기서 SW_READY/SW_UPDATED 브로드캐스트/새로고침 유도하지 않음 (루프 방지)
     })());
   }
 });
