@@ -1,0 +1,9 @@
+# worker/wrangler.toml
+
+name = "unse-openai-proxy"
+main = "src/index.js"
+compatibility_date = "2024-08-01"
+workers_dev = true
+
+[vars]
+# (비밀키는 여기 X) wrangler secret put OPENAI_API_KEY 로 주입

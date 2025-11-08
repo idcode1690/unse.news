@@ -1,0 +1,23 @@
+{
+  "name": "unsenews-root",
+  "private": true,
+  "workspaces": [
+    "app"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.18"
+  },
+  "scripts": {
+    "dev": "npm --workspace app run dev",
+    "build": "npm --workspace app run build",
+    "preview": "npm --workspace app run preview",
+    "test": "npm --workspace app run test",
+    "lint": "npm --workspace app run lint",
+    "format": "npm --workspace app run format"
+  }
+  ,
+  "devDependencies": {
+    "globals": "^15.0.0"
+  }
+}
