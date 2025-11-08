@@ -1,7 +1,7 @@
 // public/sw.js
 // SPA 친화 SW: 네비게이션은 index로 복원, 정적 자산은 immutable 캐시, 그 외는 네트워크 우선.
 // 배포 때마다 버전만 올려 주세요.
-const CACHE_VERSION = 'v1.4.2'; // ★ 배포마다 숫자/태그 변경
+const CACHE_VERSION = 'v1.4.3'; // ★ 배포마다 숫자/태그 변경
 const PRECACHE = `unse-precache-${CACHE_VERSION}`;
 const RUNTIME  = `unse-runtime-${CACHE_VERSION}`;
 
