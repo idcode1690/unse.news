@@ -1,29 +1,29 @@
 /* ===== Design Tokens (VS Code Light+/Dark+ inspired) ===== */
 :root{
-  /* Light theme base */
-  --bg:#f3f3f3;              /* editor/background-like */
+  /* Light theme base — simpler, calmer palette */
+  --bg:#f8fafc;              /* page background */
   --surface:#ffffff;          /* cards/panels */
-  --ink:#1f1f1f;              /* primary text */
-  --ink-soft:#616161;         /* secondary text */
-  --border:#e5e5e5;           /* panel borders */
-  --muted:#f3f3f3;            /* subtle fills */
-  --accent:#0e639c;           /* VS Code button blue */
-  --accent-hover:#1177bb;
-  --focus-ring:#007fd4;       /* focus outline */
-  --link:#006ab1;             /* textLink (light variant) */
-  --link-hover:#0b84d6;
+  --ink:#0f172a;              /* primary text */
+  --ink-soft:#64748b;         /* secondary text */
+  --border:#e5e7eb;           /* panel borders */
+  --muted:#f1f5f9;            /* subtle fills */
+  --accent:#2563eb;           /* refined blue */
+  --accent-hover:#1d4ed8;
+  --focus-ring:#2563eb;       /* focus outline */
+  --link:#1d4ed8;             /* links */
+  --link-hover:#1e40af;
   --input-bg:#ffffff;
-  --input-fg:#1f1f1f;
-  --input-border:#d1d5db;
+  --input-fg:#0f172a;
+  --input-border:#e5e7eb;
   --button-seg-active-bg:#ffffff; /* segmented active bg */
 
   /* Domain accent (오행) stays as-is */
   --oh-wood:#0fa958;--oh-fire:#e53935;--oh-earth:#d4a514;--oh-metal:#9aa3ad;--oh-water:#1565c0;
 
-  /* Radius/space/shadow */
-  --radius-xl:24px;--radius-lg:16px;--radius-md:12px;--radius-sm:10px;
+  /* Radius/space/shadow — toned down for simplicity */
+  --radius-xl:18px;--radius-lg:14px;--radius-md:10px;--radius-sm:8px;
   --space-4:16px;--space-6:24px;--space-8:32px;--space-10:40px;--space-12:48px;--space-16:64px;
-  --shadow:0 2px 8px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.06);
+  --shadow:0 1px 2px rgba(15,23,42,.06);
   --safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);
 }
 
@@ -41,10 +41,10 @@ a:hover{color:var(--link-hover)}
 ::selection{ background:#aad6ff; color:#000; }
 
 /* ===== Header / Nav ===== */
-.site-header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(180%) blur(16px);background:var(--surface);border-bottom:1px solid var(--border)}
+.site-header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(8px);background:var(--surface);border-bottom:1px solid var(--border)}
 .navbar{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:12px 16px calc(12px + var(--safe-top));gap:var(--space-4)}
 .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-0.02em}
-.logo{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(145deg,#f5f5f5,#fff);border:1px solid var(--border);box-shadow:var(--shadow);font-size:14px}
+.logo{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;background:var(--surface);border:1px solid var(--border);font-size:14px}
 .free-pill{font-size:12px;padding:4px 8px;border-radius:999px;background:var(--muted);color:var(--ink-soft);border:1px solid var(--border)}
 
 .menu{display:none;gap:20px;align-items:center}
@@ -81,7 +81,7 @@ a:hover{color:var(--link-hover)}
 
 /* ===== Calculator Card ===== */
 .calculator{max-width:980px;margin:24px auto 64px;padding:0 16px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);box-shadow:var(--shadow);padding:20px;display:grid;gap:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);box-shadow:var(--shadow);padding:18px;display:grid;gap:14px}
 .card h2{margin:6px 0 0;font-size:20px}
 .row{display:grid;gap:12px;grid-template-columns:1fr}
 .row.cols-2{grid-template-columns:1fr 1fr}
@@ -91,15 +91,15 @@ label{font-size:13px;color:var(--ink-soft);display:block;margin-bottom:6px}
 select,.segmented{width:100%;border:1px solid var(--input-border);border-radius:var(--radius-md);padding:12px 12px;background:var(--input-bg);color:var(--input-fg);font-size:15px;line-height:1.2}
 select{appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');background-repeat:no-repeat;background-position:right 10px center}
 .segmented{display:grid;grid-template-columns:1fr 1fr;padding:2px;gap:2px;background:var(--muted)}
-.segmented button{border:0;border-radius:10px;background:transparent;padding:10px;font-size:15px;cursor:pointer}
+.segmented button{border:0;border-radius:8px;background:transparent;padding:10px;font-size:15px;cursor:pointer}
 .segmented button.active{background:var(--button-seg-active-bg);box-shadow:var(--shadow)}
 .segmented button:focus-visible, select:focus-visible, .btn-primary:focus-visible, .btn-text:focus-visible { outline:2px solid var(--focus-ring); outline-offset:2px; }
 .helper{font-size:12px;color:var(--ink-soft);margin-top:6px}
 .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
 .restore-notice{background:var(--muted);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px;margin-bottom:16px;color:var(--accent);font-size:14px;text-align:center;animation:slideDown 0.3s ease-out}
 @keyframes slideDown{0%{opacity:0;transform:translateY(-10px)}100%{opacity:1;transform:translateY(0)}}
-.btn-primary{background:var(--accent);color:#fff;padding:12px 16px;border-radius:12px;border:1px solid var(--accent);cursor:pointer}
-.btn-primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+.btn-primary{background:var(--accent);color:#fff;padding:11px 14px;border-radius:10px;border:1px solid var(--accent);cursor:pointer;transition:background .15s ease, border-color .15s ease, box-shadow .15s ease}
+.btn-primary:hover{background:var(--accent-hover);border-color:var(--accent-hover);box-shadow:0 1px 2px rgba(37,99,235,.25)}
 .btn-primary:disabled{opacity:0.6;cursor:not-allowed}
 .btn-text{background:transparent;border:0;color:var(--link);padding:10px 8px;cursor:pointer}
 .btn-text:hover{color:var(--link-hover)}
@@ -121,7 +121,7 @@ select{appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns=
 /* ===== Result ===== */
 .result{border-top:0;padding-top:0;margin-top:0}
 .pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
-.pillar{border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center;background:var(--surface)}
+.pillar{border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;background:var(--surface)}
 .pillar h3{margin:0 0 6px 0;font-size:13px;color:var(--ink-soft)}
 .pill{font-size:20px;letter-spacing:.08em}
 .gx{font-size:12px;color:var(--ink-soft);margin-top:6px}
@@ -138,30 +138,30 @@ select{appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns=
 
 /* Dark theme tokens (applied when [data-theme="dark"]) */
 :root[data-theme="dark"]{
-  --bg:#1e1e1e;              /* VS Code Dark+ background */
-  --surface:#252526;          /* panels */
-  --ink:#d4d4d4;              /* editor.foreground */
-  --ink-soft:#a9a9a9;         /* secondary */
-  --border:#3c3c3c;           /* borders */
-  --muted:#2a2d2e;            /* muted fills */
-  --accent:#0e639c;           /* button blue */
-  --accent-hover:#1177bb;
-  --focus-ring:#007fd4;
-  --link:#3794ff;
-  --link-hover:#4ea6ff;
-  --input-bg:#3c3c3c;
-  --input-fg:#d4d4d4;
-  --input-border:#3c3c3c;
-  --button-seg-active-bg:#3a3d41;
-  --shadow:0 6px 18px rgba(0,0,0,.35),0 1px 2px rgba(0,0,0,.45);
+  --bg:#0b1220;              /* deeper, quieter */
+  --surface:#0f172a;          /* panels */
+  --ink:#e2e8f0;              /* text */
+  --ink-soft:#94a3b8;         /* secondary */
+  --border:#1e293b;           /* borders */
+  --muted:#0b1220;            /* muted fills */
+  --accent:#3b82f6;           /* button blue */
+  --accent-hover:#2563eb;
+  --focus-ring:#3b82f6;
+  --link:#60a5fa;
+  --link-hover:#93c5fd;
+  --input-bg:#0b1220;
+  --input-fg:#e2e8f0;
+  --input-border:#1e293b;
+  --button-seg-active-bg:#0b1220;
+  --shadow:0 1px 2px rgba(0,0,0,.45);
 }
 
 /* If no explicit theme set, respect system preference */
 @media (prefers-color-scheme: dark){
   :root:not([data-theme]){
-    --bg:#1e1e1e;--surface:#252526;--ink:#d4d4d4;--ink-soft:#a9a9a9;--border:#3c3c3c;--muted:#2a2d2e;--accent:#0e639c;
-    --accent-hover:#1177bb;--focus-ring:#007fd4;--link:#3794ff;--link-hover:#4ea6ff;--input-bg:#3c3c3c;--input-fg:#d4d4d4;--input-border:#3c3c3c;--button-seg-active-bg:#3a3d41;
-    --shadow:0 6px 18px rgba(0,0,0,.35),0 1px 2px rgba(0,0,0,.45);
+    --bg:#0b1220;--surface:#0f172a;--ink:#e2e8f0;--ink-soft:#94a3b8;--border:#1e293b;--muted:#0b1220;--accent:#3b82f6;
+    --accent-hover:#2563eb;--focus-ring:#3b82f6;--link:#60a5fa;--link-hover:#93c5fd;--input-bg:#0b1220;--input-fg:#e2e8f0;--input-border:#1e293b;--button-seg-active-bg:#0b1220;
+    --shadow:0 1px 2px rgba(0,0,0,.45);
   }
 }
 .info-sub{font-size:11px;color:var(--ink-soft);margin-top:4px;}

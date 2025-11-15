@@ -17,7 +17,6 @@ import {
 import { calculateSaju } from '../../utils/sajooCalculator';
 import { lunarToSolar } from '../../utils/lunarCalendar';
 import { analyzeSajuMeta } from '../../utils/sajuExtras';
-import { lunarToSolar } from '../../utils/lunarCalendar';
 import { getZodiacAnimal } from '../../utils/zodiac.jsx';
 import { callOpenAI } from '../../services/openaiService';
 

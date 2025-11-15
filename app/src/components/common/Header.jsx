@@ -233,53 +233,53 @@ const Header = () => {
         .navbar{
           max-width: 1200px; margin: 0 auto;
           display: flex; align-items: center; justify-content: space-between;
-          padding: 12px 16px;
+          padding: 10px 16px;
         }
         .brand{ display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
         .logo{
-          width: 32px; height: 32px; border-radius: 10px;
+          width: 28px; height: 28px; border-radius: 8px;
           display: grid; place-items: center;
-          background: var(--ink); color: var(--bg); font-weight: 800; font-size: 14px;
-          border: 1px solid var(--border); box-shadow: var(--shadow);
+          background: var(--surface); color: var(--ink); font-weight: 700; font-size: 13px;
+          border: 1px solid var(--border);
         }
-        .brand-text{ font-weight: 800; letter-spacing: -0.02em; }
+        .brand-text{ font-weight: 800; letter-spacing: -0.01em; }
 
-        .menu-desktop{ display: none; gap: 20px; align-items: center; margin: 0; padding: 0; list-style: none; }
+        .menu-desktop{ display: none; gap: 16px; align-items: center; margin: 0; padding: 0; list-style: none; }
         .menu-desktop__item{ list-style: none; }
         .menu-desktop__link{
-          display: inline-block; padding: 8px 6px; border-radius: 10px; text-decoration: none; color: inherit;
+          display: inline-block; padding: 8px 6px; border-radius: 8px; text-decoration: none; color: inherit;
         }
         .menu-desktop__link:hover{ background: var(--muted); }
 
         .navbar-actions{ display:flex; gap:10px; align-items:center; }
         .theme-toggle{
-          display:inline-grid; place-items:center; width:32px; height:32px; border-radius:8px;
+          display:inline-grid; place-items:center; width:30px; height:30px; border-radius:8px;
           border:1px solid var(--border); background:var(--surface); color:var(--ink);
           cursor:pointer;
         }
-        .theme-toggle:focus-visible{ outline:2px solid #94a3b8; outline-offset:2px; }
+        .theme-toggle:focus-visible{ outline:2px solid var(--focus-ring); outline-offset:2px; }
 
         .hamburger{
           display: inline-grid; place-items: center;
-          width: 32px; height: 32px; border-radius: 8px;
+          width: 30px; height: 30px; border-radius: 8px;
           border: 1px solid var(--border); background: var(--surface); color: var(--ink);
         }
-        .hamburger:focus-visible{ outline: 2px solid #94a3b8; outline-offset: 2px; }
+        .hamburger:focus-visible{ outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 
         .hamburger__icon{ width: 22px; height: 22px; display: block; }
         .hamburger .line{
-          stroke: currentColor; stroke-width: 2.2; stroke-linecap: round;
+          stroke: currentColor; stroke-width: 2.1; stroke-linecap: round;
           transform-origin: 12px 12px; transition: transform .25s ease, opacity .2s ease, stroke .2s ease;
         }
         .hamburger:hover .line{ stroke: var(--ink); }
-        .hamburger:active .line{ stroke-width: 2.5; }
+        .hamburger:active .line{ stroke-width: 2.3; }
 
         .hamburger.is-open .line.top    { transform: translateY(5.5px) rotate(45deg); }
         .hamburger.is-open .line.middle { opacity: 0; transform: scaleX(0.2); }
         .hamburger.is-open .line.bottom { transform: translateY(-5.5px) rotate(-45deg); }
 
         .drawer-overlay{
-          position: fixed; inset: 0; background: rgba(0,0,0,.35);
+          position: fixed; inset: 0; background: rgba(0,0,0,.3);
           opacity: 0; pointer-events: none; transition: opacity .2s ease; z-index: 1200;
         }
         .drawer-overlay.is-visible{ opacity: 1; pointer-events: auto; }
@@ -288,20 +288,20 @@ const Header = () => {
           position: fixed; top: 0; bottom: 0; left: 0;
           width: 82vw; max-width: 320px; background: var(--surface);
           transform: translateX(-100%); transition: transform .25s ease; z-index: 1300;
-          display: flex; flex-direction: column; box-shadow: 8px 0 24px rgba(0,0,0,.18);
+          display: flex; flex-direction: column; box-shadow: 0 1px 2px rgba(0,0,0,.24);
         }
         .drawer.is-open{ transform: translateX(0); }
         .drawer__header{
           display: flex; align-items: center; justify-content: space-between;
-          padding: 14px 16px; border-bottom: 1px solid var(--border);
+          padding: 12px 12px; border-bottom: 1px solid var(--border);
         }
         .drawer__title{ font-weight: 700; }
         .drawer__close{
-          width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--ink);
+          width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--ink);
         }
         .drawer__body{ padding: 10px; overflow: auto; }
         .drawer__link{
-          display: block; padding: 12px 12px; border-radius: 10px; color: var(--ink); text-decoration: none;
+          display: block; padding: 10px 10px; border-radius: 8px; color: var(--ink); text-decoration: none;
         }
         .drawer__link:hover{ background: var(--muted); }
 
