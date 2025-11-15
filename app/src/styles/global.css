@@ -4,6 +4,7 @@
   --bg:#f8fafc;              /* page background */
   --surface:#ffffff;          /* cards/panels */
   --ink:#0f172a;              /* primary text */
+  --ink-strong:#0b1220;       /* headings/strong text */
   --ink-soft:#64748b;         /* secondary text */
   --border:#e5e7eb;           /* panel borders */
   --muted:#f1f5f9;            /* subtle fills */
@@ -16,6 +17,7 @@
   --input-fg:#0f172a;
   --input-border:#e5e7eb;
   --button-seg-active-bg:#ffffff; /* segmented active bg */
+  --danger:#b91c1c;           /* error text */
 
   /* Domain accent (오행) stays as-is */
   --oh-wood:#0fa958;--oh-fire:#e53935;--oh-earth:#d4a514;--oh-metal:#9aa3ad;--oh-water:#1565c0;
@@ -142,6 +144,7 @@ select{appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns=
   --bg:#1e1e1e;              /* background */
   --surface:#252526;          /* panels */
   --ink:#d4d4d4;              /* editor.foreground */
+  --ink-strong:#e5e7eb;       /* headings/strong text */
   --ink-soft:#a9a9a9;         /* secondary */
   --border:#3c3c3c;           /* borders */
   --muted:#2a2d2e;            /* muted fills */
@@ -155,6 +158,7 @@ select{appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns=
   --input-border:#3c3c3c;
   --button-seg-active-bg:#3a3d41;
   --shadow:0 6px 18px rgba(0,0,0,.35),0 1px 2px rgba(0,0,0,.45);
+  --danger:#f87171;           /* error text */
 }
 
 /* If no explicit theme set, respect system preference */
