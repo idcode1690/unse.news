@@ -25,7 +25,7 @@ function applyColorSchemeMeta(effective) {
     const meta = document.querySelector('meta[name="theme-color"]');
     if (!meta) return;
     // Align address bar color with theme
-    meta.setAttribute('content', effective === 'dark' ? '#0b0b0f' : '#ffffff');
+    meta.setAttribute('content', effective === 'dark' ? '#1e1e1e' : '#f3f3f3');
   } catch {}
 }
 

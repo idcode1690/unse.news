@@ -1,10 +1,21 @@
-/* ===== Design Tokens (Apple-esque) ===== */
+/* ===== Design Tokens (VS Code Light+/Dark+ inspired) ===== */
 :root{
-  --bg:#fff;--surface:#fff;--ink:#111;--ink-soft:#666;--border:#e6e6e6;--muted:#f7f7f7;--accent:#0a84ff;
+  /* Light theme base */
+  --bg:#f3f3f3;              /* editor/background-like */
+  --surface:#ffffff;          /* cards/panels */
+  --ink:#1f1f1f;              /* primary text */
+  --ink-soft:#616161;         /* secondary text */
+  --border:#e5e5e5;           /* panel borders */
+  --muted:#f3f3f3;            /* subtle fills */
+  --accent:#0e639c;           /* VS Code button blue */
+
+  /* Domain accent (오행) stays as-is */
   --oh-wood:#0fa958;--oh-fire:#e53935;--oh-earth:#d4a514;--oh-metal:#9aa3ad;--oh-water:#1565c0;
+
+  /* Radius/space/shadow */
   --radius-xl:24px;--radius-lg:16px;--radius-md:12px;--radius-sm:10px;
   --space-4:16px;--space-6:24px;--space-8:32px;--space-10:40px;--space-12:48px;--space-16:64px;
-  --shadow:0 4px 24px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.06);
+  --shadow:0 2px 8px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.06);
   --safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);
 }
 
@@ -75,8 +86,8 @@ select{appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns=
 .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
 .restore-notice{background:var(--muted);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px;margin-bottom:16px;color:var(--accent);font-size:14px;text-align:center;animation:slideDown 0.3s ease-out}
 @keyframes slideDown{0%{opacity:0;transform:translateY(-10px)}100%{opacity:1;transform:translateY(0)}}
-.btn-primary{background:var(--ink);color:#fff;padding:12px 16px;border-radius:12px;border:1px solid #000;cursor:pointer}
-.btn-primary:hover{filter:brightness(.96)}
+.btn-primary{background:var(--accent);color:#fff;padding:12px 16px;border-radius:12px;border:1px solid var(--accent);cursor:pointer}
+.btn-primary:hover{background:#1177bb;border-color:#1177bb}
 .btn-primary:disabled{opacity:0.6;cursor:not-allowed}
 .btn-text{background:transparent;border:0;color:var(--ink-soft);padding:10px 8px;cursor:pointer}
 
@@ -114,15 +125,21 @@ select{appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns=
 
 /* Dark theme tokens (applied when [data-theme="dark"]) */
 :root[data-theme="dark"]{
-  --bg:#0b0b0f;--surface:#121318;--ink:#eef2f7;--ink-soft:#a6adbb;--border:#23262d;--muted:#0f1217;--accent:#0a84ff;
-  --shadow:0 6px 28px rgba(0,0,0,.35),0 1px 2px rgba(0,0,0,.45);
+  --bg:#1e1e1e;              /* VS Code Dark+ background */
+  --surface:#252526;          /* panels */
+  --ink:#d4d4d4;              /* editor.foreground */
+  --ink-soft:#a9a9a9;         /* secondary */
+  --border:#3c3c3c;           /* borders */
+  --muted:#2a2d2e;            /* muted fills */
+  --accent:#0e639c;           /* button blue */
+  --shadow:0 6px 18px rgba(0,0,0,.35),0 1px 2px rgba(0,0,0,.45);
 }
 
 /* If no explicit theme set, respect system preference */
 @media (prefers-color-scheme: dark){
   :root:not([data-theme]){
-    --bg:#0b0b0f;--surface:#121318;--ink:#eef2f7;--ink-soft:#a6adbb;--border:#23262d;--muted:#0f1217;--accent:#0a84ff;
-    --shadow:0 6px 28px rgba(0,0,0,.35),0 1px 2px rgba(0,0,0,.45);
+    --bg:#1e1e1e;--surface:#252526;--ink:#d4d4d4;--ink-soft:#a9a9a9;--border:#3c3c3c;--muted:#2a2d2e;--accent:#0e639c;
+    --shadow:0 6px 18px rgba(0,0,0,.35),0 1px 2px rgba(0,0,0,.45);
   }
 }
 .info-sub{font-size:11px;color:var(--ink-soft);margin-top:4px;}
