@@ -7,9 +7,20 @@
     <link rel="canonical" href="https://unse.news/" />
   </head>
   <body>
-    <p>
-      이 파일은 저장소 루트 전용 안내 페이지입니다. 자동 리다이렉트는 비활성화되었습니다.<br />
-      실제 서비스는 <a href="/">/ (unse.news)</a>에서 제공됩니다.
-    </p>
+    <p>Redirecting to <a href="/app/">unse.news/app</a> …</p>
+    <script>
+      (function(){
+        try{
+          var path = location.pathname || '/';
+          // 이미 /app/ 아래면 아무 것도 하지 않음
+          if (/^\/app\//.test(path)) return;
+          var target = location.origin.replace(/\/+$/, '') + '/app/';
+          // 동일 URL로의 반복 치환 방지
+          if ((location.origin + location.pathname + location.search + location.hash) !== target) {
+            location.replace('/app/');
+          }
+        }catch(e){}
+      })();
+    </script>
   </body>
 </html>

@@ -1,3 +1,35 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Redirecting…</title>
+    <meta name="robots" content="noindex" />
+    <script>
+      (function(l){
+        try{
+          var path = l.pathname || '/';
+          var search = l.search || '';
+          var hash = l.hash || '';
+          // 이미 /app/ 아래면 개입하지 않음
+          if (/^\/app\//.test(path)) return;
+          // 정적 파일로 보이면 개입하지 않음
+          var looksLikeFile = /\.[a-z0-9]{1,8}$/i.test(path) || /^\/assets\//.test(path);
+          if (looksLikeFile) return;
+          // 이미 p 파라미터가 있으면 개입하지 않음
+          var usp = new URLSearchParams(search);
+          if (usp.has('p')) return;
+          var full = path + search + hash;
+          var target = l.origin.replace(/\/+$/, '') + '/app/?p=' + encodeURIComponent(full);
+          if ((l.origin + l.pathname + l.search + l.hash) !== target) {
+            l.replace(target);
+          }
+        }catch(e){ try{ location.replace('/app/'); }catch(_){} }
+      })(window.location);
+    </script>
+  </head>
+  <body></body>
+  </html>
 <!DOCTYPE html>
 <html lang="ko">
   <head>
