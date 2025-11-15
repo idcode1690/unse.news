@@ -158,45 +158,75 @@ const FortunePage = () => {
 
   // 출생 사주 복원/보강
   useEffect(() => {
-    const raw = loadCalculationDataFromCookie();
-    if (!raw) return;
-    const ensured = ensureSajuComputed(raw);
-    setInputEnsured(ensured || null);
-    setBirthPillars(ensured?.sajuResult || null);
+    try {
+      const raw = loadCalculationDataFromCookie();
+      if (!raw) return;
+      const ensured = ensureSajuComputed(raw);
+      setInputEnsured(ensured || null);
+      setBirthPillars(ensured?.sajuResult || null);
 
-    // 출생 메타(용신·육친·신살·격국/대운/세운 등) — 일간 기준 시각 보정
-    if (ensured?.sajuResult) {
-      const by = ensured.year, bm = ensured.month, bd = ensured.day;
-      const birthCtx = {
-        y: by, m: bm, d: bd,
-        hh: normalizeHour(ensured.hour) ?? 12,
-        mm: toInt(ensured.minute, 0) ?? 0,
-        gender: ensured.gender || 'unknown',
-      };
-      const meta = analyzeSajuMeta(ensured.sajuResult, { birth: birthCtx });
-      setBirthMeta(meta);
+      // 출생 메타(용신·육친·신살·격국/대운/세운 등) — 일간 기준 시각 보정
+      if (ensured?.sajuResult) {
+        const by = ensured.year, bm = ensured.month, bd = ensured.day;
+        const birthCtx = {
+          y: by, m: bm, d: bd,
+          hh: normalizeHour(ensured.hour) ?? 12,
+          mm: toInt(ensured.minute, 0) ?? 0,
+          gender: ensured.gender || 'unknown',
+        };
+        const meta = analyzeSajuMeta(ensured.sajuResult, { birth: birthCtx });
+        setBirthMeta(meta);
+      }
+    } catch (e) {
+      setError(`입력 복원 중 문제가 발생했습니다. 다시 시도해 주세요.\n${e?.message ?? ''}`);
     }
   }, []);
 
   // 오늘의 사주(오늘 KST 정오 12:00 고정) + 오늘 메타(일간 기준 십성/신살 등)
   useEffect(() => {
-    const { y, m, d } = getTodayYMD_KST();
-    const pillars = calculateSaju(y, m, d, 12, 0); // ✅ 정오 고정
-    setTodayPillars(pillars);
+    try {
+      const { y, m, d } = getTodayYMD_KST();
+      const pillars = calculateSaju(y, m, d, 12, 0); // ✅ 정오 고정
+      setTodayPillars(pillars);
 
-    // ✅ 오늘 메타를 “출생 일간” 기준으로 해석하도록 앵커 전달 (연간 사용 금지)
-    const anchorDayStem = birthPillars?.day?.stem || null;
-    setTodayMeta(
-      analyzeSajuMeta(pillars, {
-        mode: 'today',
-        anchorDayStem,                 // 해석 기준: 출생 일간
-        focus: 'day',                  // (옵션 힌트) 오늘 '일간/일지' 중심
-        preferDay: true,               // (옵션 힌트) day 우선
-        birth: anchorDayStem ? { dayStem: anchorDayStem } : undefined, // 연간 힌트 미전달
-      })
-    );
+      // ✅ 오늘 메타를 “출생 일간” 기준으로 해석하도록 앵커 전달 (연간 사용 금지)
+      const anchorDayStem = birthPillars?.day?.stem || null;
+      setTodayMeta(
+        analyzeSajuMeta(pillars, {
+          mode: 'today',
+          anchorDayStem,                 // 해석 기준: 출생 일간
+          focus: 'day',                  // (옵션 힌트) 오늘 '일간/일지' 중심
+          preferDay: true,               // (옵션 힌트) day 우선
+          birth: anchorDayStem ? { dayStem: anchorDayStem } : undefined, // 연간 힌트 미전달
+        })
+      );
+    } catch (e) {
+      setError(`오늘의 정보 계산 중 문제가 발생했습니다.\n${e?.message ?? ''}`);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [birthPillars?.day?.stem]);
+
+  // 부트 로딩 가드: 10초 내 초기 데이터가 준비되지 않으면 오류 표기
+  useEffect(() => {
+    if (!hasInput) return;
+    if (birthPillars && todayPillars) return;
+    const id = setTimeout(() => {
+      if (!birthPillars || !todayPillars) {
+        setError('초기 데이터 준비에 시간이 오래 걸립니다. 새로고침 후 다시 시도해 주세요.');
+      }
+    }, 10000);
+    return () => clearTimeout(id);
+  }, [hasInput, birthPillars, todayPillars]);
+
+  // API 로딩 가드: 60초 초과 시 강제 해제(네트워크 타임아웃 보조)
+  useEffect(() => {
+    if (!isLoading) return;
+    const id = setTimeout(() => {
+      setError((prev) => prev || '응답이 지연되어 요청을 중단했습니다. 다시 시도해 주세요.');
+      setIsLoading(false);
+    }, 60000);
+    return () => clearTimeout(id);
+  }, [isLoading]);
 
   // AI 호출
   useEffect(() => {
