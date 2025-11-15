@@ -138,30 +138,32 @@ select{appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns=
 
 /* Dark theme tokens (applied when [data-theme="dark"]) */
 :root[data-theme="dark"]{
-  --bg:#0b1220;              /* deeper, quieter */
-  --surface:#0f172a;          /* panels */
-  --ink:#e2e8f0;              /* text */
-  --ink-soft:#94a3b8;         /* secondary */
-  --border:#1e293b;           /* borders */
-  --muted:#0b1220;            /* muted fills */
-  --accent:#3b82f6;           /* button blue */
-  --accent-hover:#2563eb;
-  --focus-ring:#3b82f6;
-  --link:#60a5fa;
-  --link-hover:#93c5fd;
-  --input-bg:#0b1220;
-  --input-fg:#e2e8f0;
-  --input-border:#1e293b;
-  --button-seg-active-bg:#0b1220;
-  --shadow:0 1px 2px rgba(0,0,0,.45);
+  /* VS Code Dark+ palette */
+  --bg:#1e1e1e;              /* background */
+  --surface:#252526;          /* panels */
+  --ink:#d4d4d4;              /* editor.foreground */
+  --ink-soft:#a9a9a9;         /* secondary */
+  --border:#3c3c3c;           /* borders */
+  --muted:#2a2d2e;            /* muted fills */
+  --accent:#0e639c;           /* button blue */
+  --accent-hover:#1177bb;
+  --focus-ring:#007fd4;
+  --link:#3794ff;
+  --link-hover:#4ea6ff;
+  --input-bg:#3c3c3c;
+  --input-fg:#d4d4d4;
+  --input-border:#3c3c3c;
+  --button-seg-active-bg:#3a3d41;
+  --shadow:0 6px 18px rgba(0,0,0,.35),0 1px 2px rgba(0,0,0,.45);
 }
 
 /* If no explicit theme set, respect system preference */
 @media (prefers-color-scheme: dark){
   :root:not([data-theme]){
-    --bg:#0b1220;--surface:#0f172a;--ink:#e2e8f0;--ink-soft:#94a3b8;--border:#1e293b;--muted:#0b1220;--accent:#3b82f6;
-    --accent-hover:#2563eb;--focus-ring:#3b82f6;--link:#60a5fa;--link-hover:#93c5fd;--input-bg:#0b1220;--input-fg:#e2e8f0;--input-border:#1e293b;--button-seg-active-bg:#0b1220;
-    --shadow:0 1px 2px rgba(0,0,0,.45);
+    /* fallback to VS Code Dark+ when user prefers dark */
+    --bg:#1e1e1e;--surface:#252526;--ink:#d4d4d4;--ink-soft:#a9a9a9;--border:#3c3c3c;--muted:#2a2d2e;--accent:#0e639c;
+    --accent-hover:#1177bb;--focus-ring:#007fd4;--link:#3794ff;--link-hover:#4ea6ff;--input-bg:#3c3c3c;--input-fg:#d4d4d4;--input-border:#3c3c3c;--button-seg-active-bg:#3a3d41;
+    --shadow:0 6px 18px rgba(0,0,0,.35),0 1px 2px rgba(0,0,0,.45);
   }
 }
 .info-sub{font-size:11px;color:var(--ink-soft);margin-top:4px;}

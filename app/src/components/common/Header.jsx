@@ -226,8 +226,8 @@ const Header = () => {
 
         .site-header{
           position: sticky; top: 0; z-index: 1000;
-          background: var(--surface);
-          backdrop-filter: saturate(140%) blur(8px);
+          background: color-mix(in srgb, var(--surface) 92%, transparent);
+          backdrop-filter: saturate(140%) blur(10px);
           border-bottom: 1px solid var(--border);
         }
         .navbar{
