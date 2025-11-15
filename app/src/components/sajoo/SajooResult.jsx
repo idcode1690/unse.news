@@ -18,6 +18,7 @@ import { calculateSaju } from '../../utils/sajooCalculator';
 import { lunarToSolar } from '../../utils/lunarCalendar';
 import { analyzeSajuMeta } from '../../utils/sajuExtras';
 import { lunarToSolar } from '../../utils/lunarCalendar';
+import { getZodiacAnimal } from '../../utils/zodiac.jsx';
 import { callOpenAI } from '../../services/openaiService';
 
 function pad2(n) { return String(n).padStart(2, '0'); }
@@ -456,8 +457,7 @@ const SajooResult = () => {
 
         // ✅ 띠 계산 (설날 기준): 음력 1월 1일(설날) 이전 출생이면 전년도 띠
         let zodiacAnimal = '—';
-        try {
-          // 기준 양력 출생일(음력 입력이면 이미 solarDate로 환산됨)
+        do {
           let sy, sm, sd;
           if (typeof data.solarDate === 'string') {
             const m = data.solarDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -466,15 +466,9 @@ const SajooResult = () => {
             sy = Number(y); sm = Number(m); sd = Number(d);
           }
           if (Number.isFinite(sy) && Number.isFinite(sm) && Number.isFinite(sd)) {
-            const birthDate = new Date(sy, sm - 1, sd);
-            const lunarNY = lunarToSolar(sy, 1, 1, false); // 해당 양력년의 설날(음력 1.1)
-            // 출생일이 설날보다 앞이면 전년도 기준으로 띠 계산
-            const zodiacYear = birthDate < lunarNY ? sy - 1 : sy;
-            const BRANCHES_HAN = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
-            const branch = BRANCHES_HAN[((zodiacYear - 1984) % 12 + 12) % 12];
-            zodiacAnimal = getAnimalFromYearBranch(branch) || '—';
+            zodiacAnimal = getZodiacAnimal(sy, sm, sd);
           }
-        } catch {}
+        } while(false);
 
     return (
       <div className="info-box info-soft" aria-label="기본정보" style={{ marginTop: 10 }}>
