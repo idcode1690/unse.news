@@ -2,6 +2,7 @@
 // 사주(년/월/일/시) + 십성/지장간/12운성/12신살 계산
 
 import { toJDN } from './lunarCalendar';
+import { getSolarTermKST, makeKSTDateUTC } from './solarTermsKST';
 
 // 내부 유틸
 const STEMS = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
@@ -97,39 +98,67 @@ function applyLocalSolar(hour, minute, opts) {
 }
 
 // ── 사주 기둥 ─────────────────────────────────────────
-export function getYearPillar(year, month, day) {
+// λ: 태양 겉보기 황경(춘분=0°). 입춘은 λ=315° 근방.
+const MONTH_BRANCHES_FROM_LICHUN = ['寅','卯','辰','巳','午','未','申','酉','戌','亥','子','丑'];
+
+function getSolarLongitudeAtKST(year, month, day, hour = 0, minute = 0){
+  const dateUTC = makeKSTDateUTC(year, month, day, hour, minute);
+  const { lambda } = getSolarTermKST(dateUTC);
+  return lambda; // 0..360
+}
+
+export function getYearPillar(year, month, day, hour = 0, minute = 0) {
+  // 입춘(λ≥315°) 이전이면 전년으로 간주
   let y = year;
-  if (month === 1 || (month === 2 && day < 4)) y = year - 1; // 입춘 이전 전년
+  try {
+    const lambda = getSolarLongitudeAtKST(year, month, day, hour, minute);
+    if (lambda < 315) y = year - 1;
+  } catch {
+    // fallback: 기존 근사 (2/4 이전 전년)
+    if (month === 1 || (month === 2 && day < 4)) y = year - 1;
+  }
   const base = 1984; // 甲子
   const d = y - base;
   return { stem: STEMS[mod(d, 10)], branch: BRANCHES[mod(d, 12)] };
 }
 
-export function getMonthPillar(year, month, day, yearStem) {
-  let bi;
-  if ((month === 2 && day >= 4)  || (month === 3 && day < 5))  bi = 2;
-  else if ((month === 3 && day >= 5)  || (month === 4 && day < 4))  bi = 3;
-  else if ((month === 4 && day >= 4)  || (month === 5 && day < 5))  bi = 4;
-  else if ((month === 5 && day >= 5)  || (month === 6 && day < 5))  bi = 5;
-  else if ((month === 6 && day >= 5)  || (month === 7 && day < 7))  bi = 6;
-  else if ((month === 7 && day >= 7)  || (month === 8 && day < 7))  bi = 7;
-  else if ((month === 8 && day >= 7)  || (month === 9 && day < 7))  bi = 8;
-  else if ((month === 9 && day >= 7)  || (month === 10 && day < 8)) bi = 9;
-  else if ((month === 10 && day >= 8) || (month === 11 && day < 7)) bi = 10;
-  else if ((month === 11 && day >= 7) || (month === 12 && day < 7)) bi = 11;
-  else if ((month === 12 && day >= 7) || (month === 1 && day < 5))  bi = 0;
-  else bi = 1;
+export function getMonthPillar(year, month, day, hour = 0, minute = 0, yearStem) {
+  let branch = '寅';
+  let bi = 0;
+  try {
+    const lambda = getSolarLongitudeAtKST(year, month, day, hour, minute);
+    // 입춘(315°) 기준 30° 구간으로 월지 결정
+    const idx = Math.floor(((lambda - 315 + 360) % 360) / 30);
+    branch = MONTH_BRANCHES_FROM_LICHUN[idx];
+    bi = idx;
+  } catch {
+    // fallback: 기존 근사 bi 계산
+    if ((month === 2 && day >= 4)  || (month === 3 && day < 5))  bi = 0; // 寅
+    else if ((month === 3 && day >= 5)  || (month === 4 && day < 4))  bi = 1; // 卯
+    else if ((month === 4 && day >= 4)  || (month === 5 && day < 5))  bi = 2;
+    else if ((month === 5 && day >= 5)  || (month === 6 && day < 5))  bi = 3;
+    else if ((month === 6 && day >= 5)  || (month === 7 && day < 7))  bi = 4;
+    else if ((month === 7 && day >= 7)  || (month === 8 && day < 7))  bi = 5;
+    else if ((month === 8 && day >= 7)  || (month === 9 && day < 7))  bi = 6;
+    else if ((month === 9 && day >= 7)  || (month === 10 && day < 8)) bi = 7;
+    else if ((month === 10 && day >= 8) || (month === 11 && day < 7)) bi = 8;
+    else if ((month === 11 && day >= 7) || (month === 12 && day < 7)) bi = 9;
+    else if ((month === 12 && day >= 7) || (month === 1 && day < 5))  bi = 10;
+    else bi = 11;
+    branch = MONTH_BRANCHES_FROM_LICHUN[bi];
+  }
 
+  // 월간: 연간 그룹별 寅월 시작간에서 순가산
   const yi = STEMS.indexOf(yearStem);
-  let ms;
-  if (yi === 0 || yi === 5) ms = 2;        // 甲/己→丙
-  else if (yi === 1 || yi === 6) ms = 4;   // 乙/庚→戊
-  else if (yi === 2 || yi === 7) ms = 6;   // 丙/辛→庚
-  else if (yi === 3 || yi === 8) ms = 8;   // 丁/壬→壬
-  else ms = 0;                             // 戊/癸→甲
+  let start; // 寅월의 천간 index
+  if (yi === 0 || yi === 5) start = 2;       // 甲/己→丙
+  else if (yi === 1 || yi === 6) start = 4;  // 乙/庚→戊
+  else if (yi === 2 || yi === 7) start = 6;  // 丙/辛→庚
+  else if (yi === 3 || yi === 8) start = 8;  // 丁/壬→壬
+  else start = 0;                             // 戊/癸→甲
 
-  const si = mod(ms + mod(bi - 2, 12), 10);
-  return { stem: STEMS[si], branch: BRANCHES[bi] };
+  const si = mod(start + bi, 10);
+  return { stem: STEMS[si], branch };
 }
 
 export function getDayPillar(year, month, day, hour = 0, minute = 0) {
@@ -156,30 +185,38 @@ export function getHourPillar(dayStem, hour = 0, minute = 0) {
   return { stem, branch };
 }
 
-export function getCurrentSeason(year, month, day) {
-  const names = [
-    [1, 5, '소한'], [1, 20, '대한'], [2, 4, '입춘'], [2, 19, '우수'], [3, 6, '경칩'], [3, 21, '춘분'],
-    [4, 5, '청명'], [4, 20, '곡우'], [5, 6, '입하'], [5, 21, '소만'], [6, 6, '망종'], [6, 21, '하지'],
-    [7, 7, '소서'], [7, 23, '대서'], [8, 7, '입추'], [8, 23, '처서'], [9, 7, '백로'], [9, 23, '추분'],
-    [10, 8, '한로'], [10, 23, '상강'], [11, 7, '입동'], [11, 22, '소설'], [12, 7, '대설'], [12, 22, '동지'],
-  ];
-  const d = new Date(year, month - 1, day);
-  let curr = names[0][2];
-  for (const [m, dd, nm] of names) {
-    const td = new Date(year, m - 1, dd);
-    if (d >= td) curr = nm;
+export function getCurrentSeason(year, month, day, hour = 12, minute = 0) {
+  try {
+    const dUTC = makeKSTDateUTC(year, month, day, hour, minute);
+    const { name } = getSolarTermKST(dUTC);
+    return { name };
+  } catch {
+    // 근사 fallback
+    const names = [
+      [1, 5, '소한'], [1, 20, '대한'], [2, 4, '입춘'], [2, 19, '우수'], [3, 6, '경칩'], [3, 21, '춘분'],
+      [4, 5, '청명'], [4, 20, '곡우'], [5, 6, '입하'], [5, 21, '소만'], [6, 6, '망종'], [6, 21, '하지'],
+      [7, 7, '소서'], [7, 23, '대서'], [8, 7, '입추'], [8, 23, '처서'], [9, 7, '백로'], [9, 23, '추분'],
+      [10, 8, '한로'], [10, 23, '상강'], [11, 7, '입동'], [11, 22, '소설'], [12, 7, '대설'], [12, 22, '동지'],
+    ];
+    const d = new Date(year, month - 1, day);
+    let curr = names[0][2];
+    for (const [m, dd, nm] of names) {
+      const td = new Date(year, m - 1, dd);
+      if (d >= td) curr = nm;
+    }
+    return { name: curr };
   }
-  return { name: curr };
 }
 
 export function calculateSaju(year, month, day, hour = 0, minute = 0, opts = {}) {
   const { hour: adjH, minute: adjM } = applyLocalSolar(hour, minute, opts);
 
-  const yearP = getYearPillar(year, month, day);
-  const monthP = getMonthPillar(year, month, day, yearP.stem);
+  // 연/월주는 KST 절입 시각 반영(표준시 기준). 일/시주는 (선택 시) 지역태양시 보정 적용.
+  const yearP = getYearPillar(year, month, day, hour, minute);
+  const monthP = getMonthPillar(year, month, day, hour, minute, yearP.stem);
   const dayP = getDayPillar(year, month, day, adjH, adjM);
   const hourP = getHourPillar(dayP.stem, adjH, adjM);
-  const season = getCurrentSeason(year, month, day);
+  const season = getCurrentSeason(year, month, day, hour, minute);
 
   const enrich = (p) => {
     const hs = HIDDEN_STEMS[p.branch] || [];

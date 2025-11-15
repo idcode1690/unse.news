@@ -1,5 +1,7 @@
 // vite.config.js
 import { defineConfig } from "vite";
+// Vitest 설정을 위해 타입 힌트 주석을 유지할 수 있습니다.
+// @ts-check
 import react from "@vitejs/plugin-react";
 
 // ✅ unse.news(커스텀 도메인 루트) 배포용 설정
@@ -46,5 +48,12 @@ export default defineConfig({
 
   optimizeDeps: {
     include: ["react", "react-dom"],
+  },
+
+  // Vitest 설정 (Jest 스타일 테스트 호환)
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: ["./src/setupTests.jsx"],
   },
 });

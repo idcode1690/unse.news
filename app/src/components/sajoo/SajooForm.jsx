@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Button, Select, SegmentedControl, Card } from '../ui';
 import { DEFAULT_VALUES, MBTI_TYPES } from '../../utils/constants';
+import { getLeapMonth, getLeapMonthDays, getMonthDays } from '../../utils/lunarCalendar';
 import {
   saveFormDataToCookie,
   loadFormDataFromCookie,
@@ -124,9 +125,23 @@ const SajooForm = () => {
   );
   const dayOptions = useMemo(() => {
     const isLunar = formData.calendar === 'lunar';
-    const maxDays = isLunar ? 30 : solarDaysInMonth(formData.year, formData.month);
+    let maxDays;
+    if (isLunar) {
+      const y = Number(formData.year);
+      const m = Number(formData.month);
+      if (Number.isFinite(y) && y >= 1900 && y <= 2029 && Number.isFinite(m) && m >= 1 && m <= 12) {
+        const leapM = getLeapMonth(y);
+        const isLeapSel = formData.leapMonth === 'leap';
+        if (isLeapSel && m === leapM) maxDays = getLeapMonthDays(y) || 29;
+        else maxDays = getMonthDays(y, m) || 29;
+      } else {
+        maxDays = 30; // 범위 밖 근사
+      }
+    } else {
+      maxDays = solarDaysInMonth(formData.year, formData.month);
+    }
     return Array.from({ length: maxDays }, (_, i) => ({ value: String(i + 1), label: `${i + 1}일` }));
-  }, [formData.calendar, formData.year, formData.month]);
+  }, [formData.calendar, formData.year, formData.month, formData.leapMonth]);
   const hourOptions = useMemo(() => {
     const hours = [{ value: '', label: '모름' }];
     for (let i = 0; i < 24; i++) hours.push({ value: String(i), label: `${String(i).padStart(2, '0')}시` });
@@ -141,7 +156,21 @@ const SajooForm = () => {
   const setWithClamp = useCallback((next) => {
     const n = { ...next };
     const isLunar = n.calendar === 'lunar';
-    const maxDays = isLunar ? 30 : solarDaysInMonth(n.year, n.month);
+    let maxDays;
+    if (isLunar) {
+      const y = Number(n.year);
+      const m = Number(n.month);
+      if (Number.isFinite(y) && y >= 1900 && y <= 2029 && Number.isFinite(m) && m >= 1 && m <= 12) {
+        const leapM = getLeapMonth(y);
+        const isLeapSel = n.leapMonth === 'leap';
+        if (isLeapSel && m === leapM) maxDays = getLeapMonthDays(y) || 29;
+        else maxDays = getMonthDays(y, m) || 29;
+      } else {
+        maxDays = 30;
+      }
+    } else {
+      maxDays = solarDaysInMonth(n.year, n.month);
+    }
     const curDay = Number(n.day);
     if (!curDay || curDay > maxDays) n.day = String(Math.min(curDay || 1, maxDays));
     return n;
@@ -150,10 +179,24 @@ const SajooForm = () => {
   // 연/월/달력 변경 시 자동 보정
   useEffect(() => {
     const isLunar = formData.calendar === 'lunar';
-    const maxDays = isLunar ? 30 : solarDaysInMonth(formData.year, formData.month);
+    let maxDays;
+    if (isLunar) {
+      const y = Number(formData.year);
+      const m = Number(formData.month);
+      if (Number.isFinite(y) && y >= 1900 && y <= 2029 && Number.isFinite(m) && m >= 1 && m <= 12) {
+        const leapM = getLeapMonth(y);
+        const isLeapSel = formData.leapMonth === 'leap';
+        if (isLeapSel && m === leapM) maxDays = getLeapMonthDays(y) || 29;
+        else maxDays = getMonthDays(y, m) || 29;
+      } else {
+        maxDays = 30;
+      }
+    } else {
+      maxDays = solarDaysInMonth(formData.year, formData.month);
+    }
     const curDay = Number(formData.day);
     if (curDay && curDay > maxDays) setFormData(prev => ({ ...prev, day: String(maxDays) }));
-  }, [formData.calendar, formData.year, formData.month]);
+  }, [formData.calendar, formData.year, formData.month, formData.leapMonth]);
 
   // 입력 핸들러
   const handleCalendarChange = (value) => {
@@ -382,13 +425,12 @@ const SajooForm = () => {
   return (
     <section className="calculator">
       <Card className="form-card">
-        <h2 className="h2" style={{ marginTop: 0 }}>내 정보</h2>
+        <h2 className="h2">내 정보</h2>
 
         <fieldset
           disabled={isLocked}
           aria-disabled={isLocked}
           className={isLocked ? 'fieldset-locked' : undefined}
-          style={{ border: 0, padding: 0, margin: 0 }}
         >
           <div className="row cols-2">
             <div className="field-calendar">
@@ -523,68 +565,6 @@ const SajooForm = () => {
           ))}
         </div>
       )}
-
-      <style>{`
-        :root{ --row-gap: 14px; --col-gap: 12px; }
-
-        .form-card { margin-bottom: 14px; }
-
-        /* 행 간격을 '딱' 고정 */
-        .form-card .row{
-          display: grid;
-          gap: var(--row-gap) var(--col-gap);
-          margin: 0;                     /* 기본 여백 제거 */
-        }
-        .form-card .row + .row{ margin-top: var(--row-gap); } /* 행-행 간격 균일 */
-        .form-card .row.only-mobile{ margin-top: var(--row-gap); }
-
-        /* 필드 컨테이너 자체 여백 제거 (컴포넌트 내부 마진 영향 최소화) */
-        .form-card .row > [class^="field-"]{ margin: 0; }
-
-        /* 액션 영역도 동일한 상단 간격 적용 */
-        .actions{
-          margin-top: var(--row-gap);
-          display: flex; gap: 10px;
-        }
-
-        .quick-grid { margin-top: 10px; }
-
-        /* 락 시 포인터 차단 */
-        .fieldset-locked { opacity: 0.98; }
-        .fieldset-locked * {
-          pointer-events: none !important;
-          cursor: not-allowed !important;
-        }
-
-        /* 카드 레이아웃 */
-        .nav-card-simple { cursor: pointer; }
-        .nav-simple{
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 14px;
-        }
-        .nav-icon{
-          font-size: 24px;
-          line-height: 1;
-          flex-shrink: 0;
-        }
-        .nav-title{
-          margin: 0;
-          font-weight: 800;
-          line-height: 1.22;
-        }
-        .nav-desc{
-          margin: 2px 0 0;
-          font-size: 13px;
-          color: var(--ink-soft, #6b7280);
-        }
-
-        @media (max-width: 640px){
-          .nav-title{ font-size: 18px; }
-          .nav-desc{ font-size: 15px; margin-top: 0; }
-        }
-      `}</style>
     </section>
   );
 };

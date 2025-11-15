@@ -16,6 +16,8 @@ describe('Cookie Utils', () => {
       const name = eqPos > -1 ? c.substr(0, eqPos) : c;
       document.cookie = `${name.trim()}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
     });
+    // 각 테스트 전에 localStorage 초기화 (LS 기반 API의 독립성 보장)
+    try { localStorage.clear(); } catch(_) {}
   });
 
   afterAll(() => {

@@ -66,6 +66,8 @@ function getCookieRaw(name){
 export function getCookie(name){
   const raw = getCookieRaw(name);
   if (raw == null) return null;
+  // Special-case sentinel for undefined values
+  if (raw === 'undefined') return undefined;
   return jsonParseSafe(raw);
 }
 export function deleteCookie(name, path='/'){
@@ -73,16 +75,27 @@ export function deleteCookie(name, path='/'){
   document.cookie = `${name}=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=${path}; SameSite=Lax`;
 }
 
-// ====== ✅ “쿠키-프리 모드”: setCookie를 완전히 차단 ======
-function setCookieBlocked(name, value){
-  // 개발 중 431 방지를 위해 모든 setCookie 호출은 무시
-  if (typeof console!=='undefined') {
-    try { console.warn('[cookieUtils] setCookie blocked:', name); } catch(e){squelch(e);}
-  }
-  return;
+// ====== setCookie 구현 (테스트 및 소형 데이터 전용) ======
+export function setCookie(name, value, days=7, path='/'){
+  if (typeof document==='undefined') return;
+  try {
+    // JSON 직렬화하되, undefined는 sentinel로 저장하여 복원
+    let serialized;
+    if (value === undefined) serialized = 'undefined';
+    else serialized = jsonStringifySafe(value);
+
+    // 쿠키 만료
+    let expires = '';
+    if (typeof days === 'number' && isFinite(days)){
+      const d = new Date();
+      d.setTime(d.getTime() + days*24*60*60*1000);
+      expires = `; Expires=${d.toUTCString()}`;
+    }
+
+    const cookieStr = `${name}=${encodeURIComponent(serialized)}${expires}; Path=${path}; SameSite=Lax`;
+    document.cookie = cookieStr;
+  } catch(e){ squelch(e); }
 }
-// 레거시 API 호환(다른 코드가 import 해도 동작은 “무시”)
-export const setCookie = setCookieBlocked;
 
 // ====== 모듈 로드 시: 큰 쿠키 싹 정리 + saju_* 프리픽스 쿠키 정리 ======
 (function purgeLargeCookies(){
