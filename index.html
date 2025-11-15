@@ -2,108 +2,15 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="content-language" content="ko" />
-    <meta name="language" content="ko" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="robots" content="index,follow" />
-    <meta name="googlebot" content="index,follow" />
-    <meta name="format-detection" content="telephone=no" />
-
-    <title>운세뉴스</title>
-    <meta
-      name="description"
-      content="사주팔자, 오늘의 운세, 궁합, 로또 추천을 한 곳에서. 생년월일/시간 입력만으로 간단하게 확인하세요."
-    />
-
-    <!-- 캐노니컬/OG는 런타임에 setSEO가 다시 설정 -->
+    <title>unse.news</title>
+    <meta http-equiv="refresh" content="0;url=/" />
     <link rel="canonical" href="https://unse.news/" />
-    <meta name="geo.region" content="KR" />
-    <meta property="og:locale" content="ko_KR" />
-    <link rel="alternate" href="https://unse.news/" hreflang="ko-kr" />
-    <link rel="alternate" href="https://unse.news/" hreflang="x-default" />
-
-    <meta property="og:title" content="운세뉴스" />
-    <meta property="og:description" content="사주팔자, 오늘의 운세, 궁합, 로또 추천을 한 곳에서." />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://unse.news/" />
-    <meta property="og:image" content="/og-image.png" />
-    <meta property="og:site_name" content="운세뉴스" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="운세뉴스" />
-    <meta name="twitter:description" content="사주팔자, 오늘의 운세, 궁합, 로또 추천을 한 곳에서." />
-    <meta name="twitter:image" content="/og-image.png" />
-
-    <!-- 반드시 절대 경로(서브경로/라우트 404 방지) -->
-    <link rel="manifest" href="/site.webmanifest" />
-    <meta name="theme-color" content="#ffffff" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-
-    <!-- CSP (외부 스크립트 차단). 필요 시 도메인 화이트리스트 추가 -->
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'; object-src 'none'">
-
-    <script>
-      // 1) GitHub Pages 404.html이 붙여준 ?p=/path 를 /path 로 복원 (히스토리만 교체)
-      (function () {
-        try {
-          var usp = new URLSearchParams(window.location.search);
-          var p = usp.get('p');
-          if (p) {
-            history.replaceState(null, '', p);
-          }
-        } catch (e) {}
-      })();
-    </script>
-
-    <script>
-      // 2) 프로덕션(= localhost가 아닐 때)만 해시 라우팅으로 1회 전환
-      //    Edge에서 발생하는 반복 전환 루프 방지를 위해 sessionStorage로 가드
-      (function () {
-        try {
-          var isLocalhost = /^localhost(:\d+)?$/.test(location.host);
-          if (isLocalhost) return; // 개발환경: 해시 강제 전환 안 함
-
-          var ONCE_KEY = '__hash_redirect_once__';
-          if (sessionStorage.getItem(ONCE_KEY) === '1') return;
-
-          // 지원하는 앱 라우트
-          var ROUTES = new Set(['/', '/result', '/fortune', '/lotto', '/compat', '/ask']);
-          var path = location.pathname.replace(/\/+$/, ''); // 트레일링 슬래시 제거
-          if (path === '') path = '/';
-
-          if (ROUTES.has(path) && !location.hash) {
-            sessionStorage.setItem(ONCE_KEY, '1');
-            // 쿼리는 보존, 해시는 '#/route' 형태로 전환
-            var nextHash = path === '/' ? '#/' : ('#' + path.replace(/^\/+/, ''));
-            // replace로 히스토리 오염 없이 1회만 전환
-            location.replace(nextHash + location.search);
-          }
-        } catch {}
-      })();
-    </script>
-
-    <!-- CSS/JS 엔트리는 Vite가 빌드시 /assets/* 로 자동 치환 -->
-    <link rel="preload" href="/src/index.css" as="style" fetchpriority="high" />
-    <link rel="stylesheet" href="/src/index.css" fetchpriority="high" />
-
-    <script type="module" src="/src/main.jsx" fetchpriority="high"></script>
-
-    <!-- 배포마다 바꿔 캐시 무효화 트리거 (선택) -->
-    <meta name="x-build-id" content="2025-09-23-02">
   </head>
   <body>
-    <div id="root"></div>
-
-    <!-- 3) SW 등록(루트 스코프). 자동 새로고침 리스너 제거(루프 방지) -->
+    <p>Redirecting to <a href="/">unse.news</a> ...</p>
     <script>
-      (function(){
-        if ('serviceWorker' in navigator) {
-          window.addEventListener('load', function(){
-            // 루트 기준으로 고정 등록 (상대 경로 금지)
-            navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function(){});
-          });
-        }
-      })();
+      try { if (location.pathname !== '/') location.replace('/'); } catch {}
     </script>
   </body>
 </html>
