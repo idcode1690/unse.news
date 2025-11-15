@@ -96,6 +96,8 @@ export async function callOpenAI({
   top_p = 1,           // 🔒 보수적
   max_tokens = 1800,
   seed = 777,          // 워커/모델이 지원하면 결정성 강화(지원 안 하면 무시됨)
+  // 전체 호출 타임아웃(밀리초). 기본 45초 후 강제 중단하여 UI가 무한 로딩에 빠지지 않도록 함.
+  timeoutMs = 45000,
 } = {}) {
   // 1) cache hit
   const cached = cacheKey ? readCache(cacheKey) : null;
@@ -111,6 +113,18 @@ export async function callOpenAI({
 
   const body = { model, messages, cacheKey, temperature, top_p, max_tokens, seed };
 
+  // 공통 타임아웃/중단 컨트롤러 (모든 시도에 동일하게 적용)
+  const ac = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  const signal = ac?.signal;
+  let toId;
+  if (ac && Number.isFinite(timeoutMs) && timeoutMs > 0) {
+    try {
+      toId = setTimeout(() => {
+        try { ac.abort(new DOMException('Timeout', 'AbortError')); } catch { try { ac.abort(); } catch {} }
+      }, timeoutMs);
+    } catch {}
+  }
+
   // 프리플라이트(OPTIONS) 없이 보내기 위해 text/plain 사용
   const makeReq = async (endpoint) => {
     const res = await fetch(endpoint, {
@@ -123,6 +137,7 @@ export async function callOpenAI({
       body: JSON.stringify(body),
       redirect: "follow",
       referrerPolicy: "no-referrer",
+      signal,
     });
 
     const text = await res.text();
@@ -168,6 +183,13 @@ export async function callOpenAI({
       try { hapticsApiDone(); } catch {}
       return value;
     } catch (e) {
+      // 타임아웃/중단 에러는 사용자 친화 메시지로 변환
+      if (e?.name === 'AbortError') {
+        try { hapticsApiError(); } catch {}
+        const err = new Error('요청이 시간 초과되었습니다. 네트워크 상태를 확인한 후 다시 시도해 주세요.');
+        err.code = 'TIMEOUT';
+        throw err;
+      }
       const msg = String(e?.message || "");
       const isNetErr = e?.name === "TypeError" || /Failed to fetch/i.test(msg);
       const is405 = /\(405\)/.test(msg) || /405 Not Allowed/i.test(msg) || /Method Not Allowed/i.test(msg);
@@ -209,5 +231,8 @@ export async function callOpenAI({
 
   if (cacheKey) inflight.set(cacheKey, req);
   try { return await req; }
-  finally { if (cacheKey) inflight.delete(cacheKey); }
+  finally {
+    if (cacheKey) inflight.delete(cacheKey);
+    if (toId) { try { clearTimeout(toId); } catch {} }
+  }
 }
