@@ -7,19 +7,9 @@
     <link rel="canonical" href="https://unse.news/" />
   </head>
   <body>
-    <p>Redirecting to <a href="/">unse.news</a> …</p>
-    <script>
-      (function(){
-        try{
-          // 루트가 아니면 루트로 이동 (한 번만)
-          if (location.pathname && location.pathname !== '/') {
-            var target = location.origin.replace(/\/+$/, '') + '/';
-            if ((location.origin + location.pathname + location.search + location.hash) !== target) {
-              location.replace('/');
-            }
-          }
-        }catch(e){}
-      })();
-    </script>
+    <p>
+      이 파일은 저장소 루트 전용 안내 페이지입니다. 자동 리다이렉트는 비활성화되었습니다.<br />
+      실제 서비스는 <a href="/">/ (unse.news)</a>에서 제공됩니다.
+    </p>
   </body>
 </html>
