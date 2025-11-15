@@ -1,6 +1,7 @@
 // app/src/components/common/Header.jsx
 import React, { useEffect, useRef, useState } from 'react';
 import { prefetchRoute } from '../../utils/prefetchRoutes';
+import { toggleTheme } from '../../utils/theme.jsx';
 
 /**
  * 헤더/모바일 드로어
@@ -10,6 +11,13 @@ import { prefetchRoute } from '../../utils/prefetchRoutes';
  */
 const Header = () => {
   const [open, setOpen] = useState(false);
+  const [theme, setThemeState] = useState(() => {
+    try {
+      return document.documentElement.getAttribute('data-theme') || 'light';
+    } catch {
+      return 'light';
+    }
+  });
   const hamRef = useRef(null);
   const firstLinkRef = useRef(null);
   const overlayRef = useRef(null);
@@ -33,6 +41,13 @@ const Header = () => {
   };
 
   const toggle = () => (open ? close() : setOpen(true));
+
+  const onToggleTheme = () => {
+    try {
+      const next = toggleTheme();
+      setThemeState(next);
+    } catch {}
+  };
 
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') close(); };
@@ -120,21 +135,33 @@ const Header = () => {
           </ul>
 
           {/* 모바일 햄버거 */}
-          <button
-            ref={hamRef}
-            type="button"
-            className={`hamburger ${open ? 'is-open' : ''}`}
-            aria-label={open ? '모바일 메뉴 닫기' : '모바일 메뉴 열기'}
-            aria-controls="mobile-drawer"
-            aria-expanded={open}
-            onClick={toggle}
-          >
-            <svg className="hamburger__icon" viewBox="0 0 24 24" aria-hidden focusable="false">
-              <path className="line top" d="M3 6.5h18" />
-              <path className="line middle" d="M3 12h18" />
-              <path className="line bottom" d="M3 17.5h18" />
-            </svg>
-          </button>
+          <div className="navbar-actions">
+            <button
+              type="button"
+              className="theme-toggle"
+              aria-label={theme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'}
+              title={theme === 'dark' ? '라이트 모드' : '다크 모드'}
+              onClick={onToggleTheme}
+            >
+              <span aria-hidden>{theme === 'dark' ? '☀️' : '🌙'}</span>
+            </button>
+            
+            <button
+              ref={hamRef}
+              type="button"
+              className={`hamburger ${open ? 'is-open' : ''}`}
+              aria-label={open ? '모바일 메뉴 닫기' : '모바일 메뉴 열기'}
+              aria-controls="mobile-drawer"
+              aria-expanded={open}
+              onClick={toggle}
+            >
+              <svg className="hamburger__icon" viewBox="0 0 24 24" aria-hidden focusable="false">
+                <path className="line top" d="M3 6.5h18" />
+                <path className="line middle" d="M3 12h18" />
+                <path className="line bottom" d="M3 17.5h18" />
+              </svg>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -199,9 +226,9 @@ const Header = () => {
 
         .site-header{
           position: sticky; top: 0; z-index: 1000;
-          background: rgba(255,255,255,.9);
+          background: var(--surface);
           backdrop-filter: saturate(140%) blur(8px);
-          border-bottom: 1px solid #eee;
+          border-bottom: 1px solid var(--border);
         }
         .navbar{
           max-width: 1200px; margin: 0 auto;
@@ -212,8 +239,8 @@ const Header = () => {
         .logo{
           width: 32px; height: 32px; border-radius: 10px;
           display: grid; place-items: center;
-          background: #111; color: #fff; font-weight: 800; font-size: 14px;
-          border: 1px solid #e6e6e6; box-shadow: 0 2px 10px rgba(0,0,0,.06);
+          background: var(--ink); color: var(--bg); font-weight: 800; font-size: 14px;
+          border: 1px solid var(--border); box-shadow: var(--shadow);
         }
         .brand-text{ font-weight: 800; letter-spacing: -0.02em; }
 
@@ -222,12 +249,20 @@ const Header = () => {
         .menu-desktop__link{
           display: inline-block; padding: 8px 6px; border-radius: 10px; text-decoration: none; color: inherit;
         }
-        .menu-desktop__link:hover{ background: rgba(0,0,0,.05); }
+        .menu-desktop__link:hover{ background: var(--muted); }
+
+        .navbar-actions{ display:flex; gap:10px; align-items:center; }
+        .theme-toggle{
+          display:inline-grid; place-items:center; width:32px; height:32px; border-radius:8px;
+          border:1px solid var(--border); background:var(--surface); color:var(--ink);
+          cursor:pointer;
+        }
+        .theme-toggle:focus-visible{ outline:2px solid #94a3b8; outline-offset:2px; }
 
         .hamburger{
           display: inline-grid; place-items: center;
           width: 32px; height: 32px; border-radius: 8px;
-          border: 1px solid #e6e6e6; background: #fff; color: #111;
+          border: 1px solid var(--border); background: var(--surface); color: var(--ink);
         }
         .hamburger:focus-visible{ outline: 2px solid #94a3b8; outline-offset: 2px; }
 
@@ -236,7 +271,7 @@ const Header = () => {
           stroke: currentColor; stroke-width: 2.2; stroke-linecap: round;
           transform-origin: 12px 12px; transition: transform .25s ease, opacity .2s ease, stroke .2s ease;
         }
-        .hamburger:hover .line{ stroke: #0f172a; }
+        .hamburger:hover .line{ stroke: var(--ink); }
         .hamburger:active .line{ stroke-width: 2.5; }
 
         .hamburger.is-open .line.top    { transform: translateY(5.5px) rotate(45deg); }
@@ -244,31 +279,31 @@ const Header = () => {
         .hamburger.is-open .line.bottom { transform: translateY(-5.5px) rotate(-45deg); }
 
         .drawer-overlay{
-          position: fixed; inset: 0; background: rgba(0,0,0,.25);
+          position: fixed; inset: 0; background: rgba(0,0,0,.35);
           opacity: 0; pointer-events: none; transition: opacity .2s ease; z-index: 1200;
         }
         .drawer-overlay.is-visible{ opacity: 1; pointer-events: auto; }
 
         .drawer{
           position: fixed; top: 0; bottom: 0; left: 0;
-          width: 82vw; max-width: 320px; background: #fff;
+          width: 82vw; max-width: 320px; background: var(--surface);
           transform: translateX(-100%); transition: transform .25s ease; z-index: 1300;
-          display: flex; flex-direction: column; box-shadow: 8px 0 24px rgba(0,0,0,.12);
+          display: flex; flex-direction: column; box-shadow: 8px 0 24px rgba(0,0,0,.18);
         }
         .drawer.is-open{ transform: translateX(0); }
         .drawer__header{
           display: flex; align-items: center; justify-content: space-between;
-          padding: 14px 16px; border-bottom: 1px solid #eee;
+          padding: 14px 16px; border-bottom: 1px solid var(--border);
         }
         .drawer__title{ font-weight: 700; }
         .drawer__close{
-          width: 32px; height: 32px; border-radius: 8px; border: 1px solid #e6e6e6; background: #fff;
+          width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--ink);
         }
         .drawer__body{ padding: 10px; overflow: auto; }
         .drawer__link{
-          display: block; padding: 12px 12px; border-radius: 10px; color: #111; text-decoration: none;
+          display: block; padding: 12px 12px; border-radius: 10px; color: var(--ink); text-decoration: none;
         }
-        .drawer__link:hover{ background: rgba(0,0,0,.05); }
+        .drawer__link:hover{ background: var(--muted); }
 
         @media (min-width: 920px){
           .menu-desktop{ display: flex; }

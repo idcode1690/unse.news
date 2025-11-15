@@ -64,6 +64,21 @@
       "
     >
 
+    <!-- 초기 테마 적용 (FOUC 최소화) -->
+    <script>
+      (function(){
+        try{
+          var saved = localStorage.getItem('theme'); // 'light' | 'dark' | 'system'
+          var sysDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var mode = (saved === 'light' || saved === 'dark') ? saved : (sysDark ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', mode);
+          document.documentElement.style.colorScheme = mode;
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', mode === 'dark' ? '#0b0b0f' : '#ffffff');
+        }catch(e){}
+      })();
+    </script>
+
     <!-- 1) 404.html이 붙여준 ?p=/path 를 다시 예쁜 경로로 복원 -->
     <script>
       (function () {
