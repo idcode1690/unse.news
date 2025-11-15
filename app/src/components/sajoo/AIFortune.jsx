@@ -209,23 +209,15 @@ export default AIFortune;
 /* 스타일: 컴포넌트 하단에 인라인 정의 (CSS 파일 이동 가능) */
 const fortuneStyles = `
   .ai-fortune { position: relative; margin-top: 14px; }
-  .fortune-shell { display:grid; place-items:center; padding:32px 20px; border:1px solid var(--border,#e2e5e9); border-radius:18px; background:linear-gradient(135deg,var(--surface,#fff),var(--surface-alt,#f9fafb)); box-shadow:0 2px 4px rgba(0,0,0,.04),0 18px 42px -12px rgba(0,0,0,.12); }
-  @media (prefers-color-scheme: dark){
-    .fortune-shell { background: linear-gradient(135deg,#101823,#0b1119); border-color:#253041; }
-  }
-  .fortune-hint { margin:12px 0 0; font-size:14px; color:var(--ink-soft,#64748b); }
-  .fortune-shell--error { background: linear-gradient(135deg,#fff0f0,#ffe5e5); border-color:#ffb4b4; }
-  @media (prefers-color-scheme: dark){ .fortune-shell--error { background:linear-gradient(135deg,#341114,#471418); border-color:#762d33; } }
+  .fortune-shell { display:grid; place-items:center; padding:32px 20px; border:1px solid var(--border); border-radius:18px; background:var(--muted); box-shadow:var(--shadow); }
+  .fortune-hint { margin:12px 0 0; font-size:14px; color:var(--ink-soft); }
+  .fortune-shell--error { background: var(--muted); border-color:#ffb4b4; }
   .fortune-shell--error h3 { margin:0 0 6px; font-size:16px; font-weight:700; letter-spacing:-.5px; }
   .fortune-error-msg { margin:4px 0 8px; white-space:pre-wrap; color:#b91c1c; font-size:13px; }
-  @media (prefers-color-scheme: dark){ .fortune-error-msg { color:#f87171; } }
-  .fortune-error-hint { margin:0; font-size:12px; color:var(--ink-soft,#64748b); }
+  .fortune-error-hint { margin:0; font-size:12px; color:var(--ink-soft); }
 
   /* 본문 */
-  .fortune-article { padding: 24px 22px 30px; border:1px solid var(--border,#e2e5e9); border-radius:20px; background:var(--surface,#ffffff); line-height:1.78; position:relative; box-shadow:0 2px 3px rgba(0,0,0,.04),0 10px 28px -8px rgba(0,0,0,.10); }
-  @media (prefers-color-scheme: dark){ .fortune-article { background:#0d141d; border-color:#253041; } }
-  .fortune-article:before { content:''; position:absolute; inset:0; pointer-events:none; border-radius:20px; background:linear-gradient(90deg,rgba(122,90,248,.08),rgba(15,169,88,.08)); mix-blend-mode:overlay; opacity:.5; }
-  @media (prefers-reduced-motion: reduce){ .fortune-article:before { animation:none; } }
+  .fortune-article { padding: 24px 22px 30px; border:1px solid var(--border); border-radius:20px; background:var(--surface); line-height:1.78; position:relative; box-shadow:var(--shadow); }
 
   .fortune-body h2, .fortune-body h3, .fortune-body h4 { position:relative; font-weight:700; letter-spacing:-.5px; line-height:1.3; margin:28px 0 12px; }
   .fortune-body h2:first-child, .fortune-body h3:first-child { margin-top:4px; }
@@ -235,31 +227,26 @@ const fortuneStyles = `
   .fortune-body h2:before, .fortune-body h3:before, .fortune-body h4:before { content:''; position:absolute; left:-14px; top:4px; width:4px; height:70%; border-radius:2px; background:linear-gradient(180deg,#7a5af8,#0fa958); box-shadow:0 0 0 3px rgba(122,90,248,.15); }
   @media (max-width:640px){ .fortune-body h2:before, .fortune-body h3:before, .fortune-body h4:before { left:-10px; } }
 
-  .fortune-body p { margin:12px 0; font-size:14.5px; color:var(--ink,#1e293b); }
-  @media (prefers-color-scheme: dark){ .fortune-body p { color:#ced4da; } }
+  .fortune-body p { margin:12px 0; font-size:14.5px; color:var(--ink); }
   .fortune-body p + p { margin-top:14px; }
 
-  .fortune-body strong { color:var(--accent,#7a5af8); font-weight:600; }
-  @media (prefers-color-scheme: dark){ .fortune-body strong { color:#b5a6ff; } }
+  .fortune-body strong { color:var(--accent); font-weight:600; }
   .fortune-body em { color:#0fa958; font-style:normal; font-weight:500; }
-  @media (prefers-color-scheme: dark){ .fortune-body em { color:#4ade80; } }
 
   .fortune-body ul, .fortune-body ol { padding-left:20px; margin:10px 0 18px; }
   .fortune-body li { margin:4px 0; line-height:1.6; }
-  .fortune-body li::marker { color:var(--accent,#7a5af8); }
+  .fortune-body li::marker { color:var(--accent); }
 
-  .fortune-body code { font-size:12.5px; background:linear-gradient(90deg,#f2f5f9,#eceef2); padding:2px 6px; border-radius:6px; font-family:ui-monospace, SFMono-Regular, Menlo, monospace; }
-  @media (prefers-color-scheme: dark){ .fortune-body code { background:#182534; color:#cbd5e1; } }
+  .fortune-body code { font-size:12.5px; background:var(--muted); color:var(--ink); padding:2px 6px; border-radius:6px; font-family:ui-monospace, SFMono-Regular, Menlo, monospace; }
 
-  .fortune-body blockquote { margin:18px 0; padding:12px 16px 12px 18px; border-left:4px solid var(--accent,#7a5af8); background:linear-gradient(90deg,#f8f9fb,#f1f5f9); border-radius:10px; font-size:14px; color:#475569; }
-  @media (prefers-color-scheme: dark){ .fortune-body blockquote { background:#121c26; color:#93a4b8; } }
+  .fortune-body blockquote { margin:18px 0; padding:12px 16px 12px 18px; border-left:4px solid var(--accent); background:var(--muted); border-radius:10px; font-size:14px; color:var(--ink-soft); }
   .fortune-body blockquote p { margin:6px 0; }
 
   .fortune-body hr { border:none; height:1px; background:linear-gradient(90deg,#d4dae2,#ffffff); margin:30px 0; position:relative; }
   .fortune-body hr:after { content:''; position:absolute; inset:0; background:linear-gradient(90deg,rgba(122,90,248,.35),rgba(15,169,88,.35)); mix-blend-mode:overlay; opacity:.35; }
   @media (prefers-color-scheme: dark){ .fortune-body hr { background:#243140; } }
 
-  .fortune-body a { color:var(--accent,#7a5af8); text-decoration:none; font-weight:500; }
+  .fortune-body a { color:var(--accent); text-decoration:none; font-weight:500; }
   .fortune-body a:hover { text-decoration:underline; }
 
   .ai-fortune--ready { animation: fortune-fade .5s ease; }
