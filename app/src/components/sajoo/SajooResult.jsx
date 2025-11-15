@@ -17,6 +17,7 @@ import {
 import { calculateSaju } from '../../utils/sajooCalculator';
 import { lunarToSolar } from '../../utils/lunarCalendar';
 import { analyzeSajuMeta } from '../../utils/sajuExtras';
+import { lunarToSolar } from '../../utils/lunarCalendar';
 import { callOpenAI } from '../../services/openaiService';
 
 function pad2(n) { return String(n).padStart(2, '0'); }
@@ -453,9 +454,27 @@ const SajooResult = () => {
     const ageNum = computeAgeFromYMD(ageForCalc.y, ageForCalc.m, ageForCalc.d);
     const ageStr = Number.isFinite(ageNum) ? `만 ${ageNum}세` : '—';
 
-    // ✅ 띠(연지 기반)
-    const yearBranchRaw = extractYearBranch(pillars);
-    const animal = getAnimalFromYearBranch(yearBranchRaw);
+        // ✅ 띠 계산 (설날 기준): 음력 1월 1일(설날) 이전 출생이면 전년도 띠
+        let zodiacAnimal = '—';
+        try {
+          // 기준 양력 출생일(음력 입력이면 이미 solarDate로 환산됨)
+          let sy, sm, sd;
+          if (typeof data.solarDate === 'string') {
+            const m = data.solarDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (m) { sy = Number(m[1]); sm = Number(m[2]); sd = Number(m[3]); }
+          } else {
+            sy = Number(y); sm = Number(m); sd = Number(d);
+          }
+          if (Number.isFinite(sy) && Number.isFinite(sm) && Number.isFinite(sd)) {
+            const birthDate = new Date(sy, sm - 1, sd);
+            const lunarNY = lunarToSolar(sy, 1, 1, false); // 해당 양력년의 설날(음력 1.1)
+            // 출생일이 설날보다 앞이면 전년도 기준으로 띠 계산
+            const zodiacYear = birthDate < lunarNY ? sy - 1 : sy;
+            const BRANCHES_HAN = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+            const branch = BRANCHES_HAN[((zodiacYear - 1984) % 12 + 12) % 12];
+            zodiacAnimal = getAnimalFromYearBranch(branch) || '—';
+          }
+        } catch {}
 
     return (
       <div className="info-box info-soft" aria-label="기본정보" style={{ marginTop: 10 }}>
@@ -472,7 +491,7 @@ const SajooResult = () => {
           <li>성별: <strong>{genderKr}</strong></li>
           <li>MBTI: <strong>{mbti}</strong></li>
           <li>만 나이: <strong>{ageStr}</strong></li>
-          <li>띠: <strong>{animal}</strong></li>
+          <li>띠(설날 기준): <strong>{zodiacAnimal}</strong></li>
           {/* ✅ 조회일(KST) — 오늘 기둥 계산과 무관, 표시/나이 참고용 */}
           <li>조회일(KST): <strong>{todayStr}</strong></li>
         </ul>
