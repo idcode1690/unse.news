@@ -206,27 +206,7 @@ const FortunePage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [birthPillars?.day?.stem]);
 
-  // 부트 로딩 가드: 10초 내 초기 데이터가 준비되지 않으면 오류 표기
-  useEffect(() => {
-    if (!hasInput) return;
-    if (birthPillars && todayPillars) return;
-    const id = setTimeout(() => {
-      if (!birthPillars || !todayPillars) {
-        setError('초기 데이터 준비에 시간이 오래 걸립니다. 새로고침 후 다시 시도해 주세요.');
-      }
-    }, 10000);
-    return () => clearTimeout(id);
-  }, [hasInput, birthPillars, todayPillars]);
-
-  // API 로딩 가드: 60초 초과 시 강제 해제(네트워크 타임아웃 보조)
-  useEffect(() => {
-    if (!isLoading) return;
-    const id = setTimeout(() => {
-      setError((prev) => prev || '응답이 지연되어 요청을 중단했습니다. 다시 시도해 주세요.');
-      setIsLoading(false);
-    }, 60000);
-    return () => clearTimeout(id);
-  }, [isLoading]);
+  // (간소화) 부트/장시간 API 가드 타이머 제거 — 네트워크 AbortController와 에러 처리만 사용
 
   // AI 호출
   useEffect(() => {
@@ -390,16 +370,16 @@ const FortunePage = () => {
     );
   }
 
-  const bootLoading = (!birthPillars || !todayPillars) && !error;
-  const showFullLoader = bootLoading || (isLoading && !error);
+  // 로컬 계산은 즉시 끝나므로 부트 로딩 상태 제거, AI 호출 중일 때만 로더 표시
+  const showFullLoader = isLoading && !error;
 
   return (
     <>
       <div className="calculator">
         <FullScreenLoader
           show={showFullLoader}
-          title={bootLoading ? '오늘의 정보를 준비 중…' : 'AI 해석을 준비하고 있어요'}
-          message={bootLoading ? '출생 사주와 오늘의 일진을 계산하고 있습니다.' : '곧 결과가 표시됩니다.'}
+          title={'AI 해석을 준비하고 있어요'}
+          message={'곧 결과가 표시됩니다.'}
         />
 
         <div className="card result" aria-busy={showFullLoader ? 'true' : 'false'}>

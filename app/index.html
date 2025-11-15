@@ -79,19 +79,7 @@
       })();
     </script>
 
-    <!-- 1) 404.html이 붙여준 ?p=/path 를 다시 예쁜 경로로 복원 -->
-    <script>
-      (function () {
-        try {
-          var usp = new URLSearchParams(window.location.search);
-          var p = usp.get('p');
-          if (p) {
-            history.replaceState(null, '', p);
-            window.__restoredPath = p; // 최초 page_view에 사용
-          }
-        } catch (e) {}
-      })();
-    </script>
+    <!-- (간소화) deep-link 복원 스크립트 제거: dist/404.html 자체를 index.html로 복제하여 SPA 라우터가 그대로 처리 -->
 
     <!-- CSS (빌드시 /assets/index-*.css 로 치환) -->
     <link rel="preload" href="/src/index.css" as="style" fetchpriority="high" />
@@ -144,9 +132,8 @@
           });
         }
 
-        // 최초 1회: 404 복원 경로가 있으면 그걸로 전송
-        if (window.__restoredPath) sendPageView(window.__restoredPath);
-        else sendPageView();
+  // 최초 1회 페이지뷰
+  sendPageView();
 
         // 뒤/앞으로 이동(popstate)
         window.addEventListener('popstate', function(){ sendPageView(); });
