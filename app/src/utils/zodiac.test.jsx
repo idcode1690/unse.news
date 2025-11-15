@@ -21,6 +21,13 @@ describe('zodiac (띠) calculation', () => {
   it('before lunar new year uses previous year (2024 Jan 30 still 토끼띠)', () => {
     expect(getZodiacAnimal(2024,1,30)).toBe('토끼띠');
   });
+  
+  it('1992 mid year is Monkey', () => {
+    expect(getZodiacAnimal(1992,6,10)).toBe('원숭이띠');
+  });
+  it('1992 Jan 15 still Sheep', () => {
+    expect(getZodiacAnimal(1992,1,15)).toBe('양띠');
+  });
 
   it('boundary day: day before lunar NY 2025 (expected Dragon)', () => {
     const ny2025 = solarLunarNY(2025); // e.g., Jan 29 2025
