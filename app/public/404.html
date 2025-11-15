@@ -43,8 +43,11 @@
           // origin + '/' 로 정확히 루트로
           var target = l.origin.replace(/\/+$/, '') + '/?p=' + encodeURIComponent(full);
 
-          // 히스토리를 남기지 않고 바꿈
-          l.replace(target);
+          // 동일 URL로의 반복 replace를 방지 (희귀 케이스 대비)
+          if ((l.origin + l.pathname + l.search + l.hash) !== target) {
+            // 히스토리를 남기지 않고 바꿈
+            l.replace(target);
+          }
         } catch (e) {
           // 혹시 에러가 나도 빈 화면 방지: 최후의 수단으로 루트로 이동
           try {
