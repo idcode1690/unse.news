@@ -34,9 +34,14 @@ body{
   min-height:100%;background:var(--bg);color:var(--ink);
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Noto Sans KR,Apple SD Gothic Neo,Helvetica,Arial,sans-serif;
   letter-spacing:-0.01em;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
-  overflow-x:hidden;overflow-y:auto;margin:0;padding:0;
-}
 a{color:var(--link);text-decoration:none}
+/* Prevent IME/composition rendering issues on some mobile browsers
+   (negative letter-spacing on the root can break composition for Korean/IME).
+   Reset to normal for all form controls to avoid strange characters while typing. */
+input, textarea, select, button {
+  letter-spacing: normal;
+}
+
 a:hover{color:var(--link-hover)}
 *{box-sizing:border-box}
 
