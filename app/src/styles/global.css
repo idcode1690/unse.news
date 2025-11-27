@@ -97,7 +97,19 @@ a:hover{color:var(--link-hover)}
 @media(max-width:640px){.row,.row.cols-2,.row.cols-4{grid-template-columns:1fr}}
 label{font-size:13px;color:var(--ink-soft);display:block;margin-bottom:6px}
 select,.segmented{width:100%;border:1px solid var(--input-border);border-radius:var(--radius-md);padding:12px 12px;background:var(--input-bg);color:var(--input-fg);font-size:15px;line-height:1.2}
-select{appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');background-repeat:no-repeat;background-position:right 10px center}
+select{
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
+  background-repeat: no-repeat !important;
+  background-position: right 10px center;
+  background-size: 18px 18px;
+  padding-right: 40px; /* ensure space for the custom arrow */
+  overflow: hidden; /* avoid visual artifacts on some mobile browsers */
+}
+
+/* Hide IE/Edge native dropdown caret */
+select::-ms-expand{ display:none; }
 .segmented{display:grid;grid-template-columns:1fr 1fr;padding:2px;gap:2px;background:var(--muted)}
 .segmented button{border:0;border-radius:8px;background:transparent;padding:10px;font-size:15px;cursor:pointer}
 .segmented button.active{background:var(--button-seg-active-bg);box-shadow:var(--shadow)}
