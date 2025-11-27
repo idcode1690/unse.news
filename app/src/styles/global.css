@@ -456,24 +456,20 @@ html, body { overflow: auto; }
     padding-right: 40px !important;
   }
 
-  /* custom caret placed by the wrapper pseudo-element only when a select exists */
-  .field:has(select)::after {
-    content: "";
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 18px;
-    height: 18px;
-    pointer-events: none;
+  /* Place the caret as a background-image on the <select> itself so it's vertically centered */
+  .field select, select {
+    -webkit-appearance: none;
+    appearance: none;
+    -moz-appearance: none;
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
-    background-repeat: no-repeat;
-    background-size: 18px 18px;
-    opacity: .9;
+    background-repeat: no-repeat !important;
+    background-position: right 10px center !important;
+    background-size: 18px 18px !important;
+    padding-right: 40px !important;
   }
 
-  /* Remove the global background-image for selects on mobile to avoid duplicated carets */
-  .field select, select { background-image: none !important; }
+  /* Hide native dropdown arrow for IE/Edge on small screens */
+  select::-ms-expand { display: none; }
 
   /* Hide IE/Edge native dropdown arrow on small screens */
   select::-ms-expand { display: none; }
