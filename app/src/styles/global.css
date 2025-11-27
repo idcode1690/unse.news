@@ -34,15 +34,9 @@ body{
   min-height:100%;background:var(--bg);color:var(--ink);
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Noto Sans KR,Apple SD Gothic Neo,Helvetica,Arial,sans-serif;
   letter-spacing:-0.01em;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;overflow-y:auto;margin:0;padding:0;
 }
 a{color:var(--link);text-decoration:none}
-/* Prevent IME/composition rendering issues on some mobile browsers
-   (negative letter-spacing on the root can break composition for Korean/IME).
-   Reset to normal for all form controls to avoid strange characters while typing. */
-input, textarea, select, button {
-  letter-spacing: normal;
-}
-
 a:hover{color:var(--link-hover)}
 *{box-sizing:border-box}
 
@@ -96,35 +90,8 @@ a:hover{color:var(--link-hover)}
 .row.cols-4{grid-template-columns:repeat(4,1fr)}
 @media(max-width:640px){.row,.row.cols-2,.row.cols-4{grid-template-columns:1fr}}
 label{font-size:13px;color:var(--ink-soft);display:block;margin-bottom:6px}
-
-/* wrap each control so we can place the caret reliably */
-.field{ position: relative }
-
 select,.segmented{width:100%;border:1px solid var(--input-border);border-radius:var(--radius-md);padding:12px 12px;background:var(--input-bg);color:var(--input-fg);font-size:15px;line-height:1.2}
-
-select{
-  -webkit-appearance: none;
-  appearance: none;
-  padding-right: 40px; /* space for the caret */
-}
-
-/* Place the arrow via the wrapper to control placement on all platforms */
-.field::after{
-  content: '';
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 18px;
-  height: 18px;
-  pointer-events: none;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
-  background-repeat: no-repeat;
-  background-size: 18px 18px;
-}
-
-/* Hide IE/Edge native dropdown caret */
-select::-ms-expand{ display:none; }
+select{appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');background-repeat:no-repeat;background-position:right 10px center}
 .segmented{display:grid;grid-template-columns:1fr 1fr;padding:2px;gap:2px;background:var(--muted)}
 .segmented button{border:0;border-radius:8px;background:transparent;padding:10px;font-size:15px;cursor:pointer}
 .segmented button.active{background:var(--button-seg-active-bg);box-shadow:var(--shadow)}
@@ -466,4 +433,46 @@ body.scroll-lock {
 
 /* 혹시 남아있는 강제 숨김을 되살리기 위한 기본값 보정 */
 html, body { overflow: auto; }
+
+/* ===== Mobile-only form fixes: avoid IME/composition / native duplicated arrows ===== */
+@media (max-width: 640px) {
+  /* IME/composition on some Android/iOS renders poorly when global letter-spacing != normal */
+  input, textarea, select, button {
+    letter-spacing: normal !important;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Make select rendering consistent on small screens by hiding native caret
+     and drawing a controlled caret from the wrapper. This only applies on mobile. */
+  .field { position: relative; }
+
+  /* remove native appearance and ensure room for the custom caret */
+  .field select, select {
+    -webkit-appearance: none;
+    appearance: none;
+    -moz-appearance: none;
+    background-repeat: no-repeat !important;
+    background-position: right 10px center !important;
+    padding-right: 40px !important;
+  }
+
+  /* custom caret placed by the wrapper pseudo-element */
+  .field::after {
+    content: "";
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    pointer-events: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
+    background-repeat: no-repeat;
+    background-size: 18px 18px;
+    opacity: .9;
+  }
+
+  /* Hide IE/Edge native dropdown arrow on small screens */
+  select::-ms-expand { display: none; }
+}
 
