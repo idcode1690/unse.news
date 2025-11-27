@@ -96,16 +96,31 @@ a:hover{color:var(--link-hover)}
 .row.cols-4{grid-template-columns:repeat(4,1fr)}
 @media(max-width:640px){.row,.row.cols-2,.row.cols-4{grid-template-columns:1fr}}
 label{font-size:13px;color:var(--ink-soft);display:block;margin-bottom:6px}
+
+/* wrap each control so we can place the caret reliably */
+.field{ position: relative }
+
 select,.segmented{width:100%;border:1px solid var(--input-border);border-radius:var(--radius-md);padding:12px 12px;background:var(--input-bg);color:var(--input-fg);font-size:15px;line-height:1.2}
+
 select{
   -webkit-appearance: none;
   appearance: none;
+  padding-right: 40px; /* space for the caret */
+}
+
+/* Place the arrow via the wrapper to control placement on all platforms */
+.field::after{
+  content: '';
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
-  background-repeat: no-repeat !important;
-  background-position: right 10px center;
+  background-repeat: no-repeat;
   background-size: 18px 18px;
-  padding-right: 40px; /* ensure space for the custom arrow */
-  overflow: hidden; /* avoid visual artifacts on some mobile browsers */
 }
 
 /* Hide IE/Edge native dropdown caret */
