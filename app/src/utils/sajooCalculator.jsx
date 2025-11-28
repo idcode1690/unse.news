@@ -1,7 +1,7 @@
 // src/utils/sajooCalculator.js
 // 사주(년/월/일/시) + 십성/지장간/12운성/12신살 계산
 
-import { toJDN } from './lunarCalendar';
+import { toJDN, lunarToSolar } from './lunarCalendar';
 import { getSolarTermKST, makeKSTDateUTC } from './solarTermsKST';
 
 // 내부 유틸
@@ -209,6 +209,15 @@ export function getCurrentSeason(year, month, day, hour = 12, minute = 0) {
 }
 
 export function calculateSaju(year, month, day, hour = 0, minute = 0, opts = {}) {
+  // If input is lunar, convert to solar date first (preserve hour/minute)
+  if (opts && opts.calendar === 'lunar') {
+    const isLeap = opts.leapMonth === 'leap' || opts.isLeap === true;
+    const solar = lunarToSolar(Number(year), Number(month), Number(day), !!isLeap);
+    year = solar.getFullYear();
+    month = solar.getMonth() + 1;
+    day = solar.getDate();
+  }
+
   const { hour: adjH, minute: adjM } = applyLocalSolar(hour, minute, opts);
 
   // 연/월주는 KST 절입 시각 반영(표준시 기준). 일/시주는 (선택 시) 지역태양시 보정 적용.
