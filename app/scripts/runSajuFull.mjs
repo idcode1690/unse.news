@@ -192,6 +192,9 @@ const cases = [
   { id: 'solar-13:10', label: '양력 1980-03-27 13:10 (서울)', args: [1980,3,27,13,10,{calendar:'solar'}] },
   { id: 'lunar-13:10', label: '음력(평달) 1980-02-11 13:10 (서울)', args: [1980,2,11,13,10,{calendar:'lunar'}] },
   { id: 'solar-12:38-local', label: '양력 1980-03-27 12:38 (지역시 -32분, 서울)', args: [1980,3,27,12,38,{calendar:'solar', useLocalSolar:true, longitude:126.9784}] },
+  // debug: force year-1 to test alternate year-handling
+  { id: 'solar-forcePrevYear', label: '양력 강제 전년도(1979) 1979-03-27 13:10 (테스트)', args: [1979,3,27,13,10,{calendar:'solar'}] },
+  { id: 'lunar-forcePrevYear', label: '음력 입력이지만 연도 강제 전년도(1979) 계산 테스트', args: [1979,3,27,13,10,{calendar:'solar'}] },
 ];
 
 for (const c of cases) {
@@ -199,3 +202,24 @@ for (const c of cases) {
   console.log('---', c.id, c.label, '---');
   console.log(JSON.stringify(res, null, 2));
 }
+
+// Variant: keep day/hour based on 1980-03-27 but compute year pillar from 1979
+// and RECOMPUTE the month pillar using the forced year-stem (this matches the
+// convention the user expects where year uses previous year's stem for month calc)
+console.log('--- variant: solar 1980-03-27 but year pillar from 1979 and month recomputed ---');
+const base = calculateSajuTest(1980,3,27,13,10,{calendar:'solar'});
+// forced year pillar from previous year
+const forcedYearRaw = getYearPillar(1979,3,27,13,10);
+const forcedYear = enrich(forcedYearRaw, base.day);
+// recompute month pillar using original solar date but with forced year stem
+const recomputedMonthRaw = getMonthPillar(1980,3,27,13,10, forcedYearRaw.stem);
+const recomputedMonth = enrich(recomputedMonthRaw, base.day);
+
+const alt2 = {
+  year: forcedYear,
+  month: recomputedMonth,
+  day: base.day,
+  hour: base.hour,
+};
+
+console.log(JSON.stringify(alt2, null, 2));
