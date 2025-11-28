@@ -36,6 +36,12 @@ const PillarDisplay = ({ pillars, idPrefix = '' }) => {
         const type = types[idx];
         const elemId = idPrefix ? `${idPrefix}-${type}` : undefined;
 
+        const tenGodStem = p?.tenGodStem || '';
+        const tenGodBranch = p?.tenGodBranch || '';
+        const hidden = (p?.hiddenStems || []).map(s => toHanStem(s)).filter(Boolean).join(', ');
+        const life = p?.lifeStage || '';
+        const shinsal = p?.shinsal || '';
+
         return (
           <div
             className="pillar"
@@ -44,13 +50,23 @@ const PillarDisplay = ({ pillars, idPrefix = '' }) => {
             id={elemId}
           >
             <h3>{titles[idx]}</h3>
+
             <div className="pill">
               <span className={stemCls}>{stem || '—'}</span>
               <span>·</span>
               <span className={brCls}>{branch || '—'}</span>
             </div>
+
             <div className="gx">
               {[elemLabelFromClass(stemCls), elemLabelFromClass(brCls)].filter(Boolean).join(' · ')}
+            </div>
+
+            <div className="pillar-meta" style={{ marginTop: 8, fontSize: 12, color: 'var(--ink-soft)' }}>
+              <div><strong>천간/십성:</strong> {stem || '—'}  /  {tenGodStem || '—'}</div>
+              <div><strong>지지/십성:</strong> {branch || '—'}  /  {tenGodBranch || '—'}</div>
+              <div><strong>지장간:</strong> {hidden || '—'}</div>
+              <div><strong>12운성:</strong> {life || '—'}</div>
+              <div><strong>12신살:</strong> {shinsal || '—'}</div>
             </div>
           </div>
         );
