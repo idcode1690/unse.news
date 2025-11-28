@@ -188,5 +188,14 @@ function calculateSajuTest(year, month, day, hour=0, minute=0, opts={}){
   };
 }
 
-const result = calculateSajuTest(1980,2,11,13,10,{calendar:'lunar'});
-console.log(JSON.stringify(result, null, 2));
+const cases = [
+  { id: 'solar-13:10', label: '양력 1980-03-27 13:10 (서울)', args: [1980,3,27,13,10,{calendar:'solar'}] },
+  { id: 'lunar-13:10', label: '음력(평달) 1980-02-11 13:10 (서울)', args: [1980,2,11,13,10,{calendar:'lunar'}] },
+  { id: 'solar-12:38-local', label: '양력 1980-03-27 12:38 (지역시 -32분, 서울)', args: [1980,3,27,12,38,{calendar:'solar', useLocalSolar:true, longitude:126.9784}] },
+];
+
+for (const c of cases) {
+  const res = calculateSajuTest(...c.args);
+  console.log('---', c.id, c.label, '---');
+  console.log(JSON.stringify(res, null, 2));
+}
